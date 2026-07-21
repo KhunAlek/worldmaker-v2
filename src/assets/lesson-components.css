@@ -1,0 +1,234 @@
+/* Lesson-page component styles — extracted from mission.html's inline <style> block.
+   These style the actual lesson content (steps, checkpoints, code blocks, recovery
+   accordions) and were missing from styles.css. Load this after styles.css. */
+
+.lesson-path {
+  display: grid;
+  gap: 18px;
+}
+.lesson-part {
+  border-left: 4px solid rgba(86, 246, 255, .55);
+}
+.lesson-part h2 {
+  margin-bottom: 8px;
+}
+.lesson-part h3 {
+  margin: 22px 0 8px;
+}
+.lesson-part p,
+.lesson-part li {
+  line-height: 1.65;
+}
+
+.lesson-goal {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.lesson-goal > div {
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.checkpoint {
+  margin: 20px 0;
+  padding: 18px;
+  border: 1px solid rgba(151, 255, 130, .25);
+  border-radius: 16px;
+  background: rgba(151, 255, 130, .07);
+}
+.checkpoint strong {
+  color: #b8ffac;
+}
+
+.prediction {
+  margin: 18px 0;
+  padding: 18px;
+  border: 1px solid rgba(255, 214, 107, .25);
+  border-radius: 16px;
+  background: rgba(255, 214, 107, .07);
+}
+
+.try-it {
+  margin: 18px 0;
+  padding: 18px;
+  border: 1px solid rgba(166, 107, 255, .28);
+  border-radius: 16px;
+  background: rgba(166, 107, 255, .08);
+}
+
+.mini-code {
+  display: block;
+  margin: 10px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #090b1d;
+  border: 1px solid rgba(255, 255, 255, .12);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: pre-wrap;
+  color: #eef2ff;
+}
+
+.expected {
+  font-weight: 800;
+  color: #97ff82;
+}
+.not-yet {
+  color: #ffd66b;
+}
+
+.submission-guide {
+  counter-reset: submit-step;
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+.submission-guide li {
+  counter-increment: submit-step;
+  padding: 15px 15px 15px 54px;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .03);
+}
+.submission-guide li:before {
+  content: counter(submit-step);
+  position: absolute;
+  left: 14px;
+  top: 13px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #56f6ff, #a66bff);
+  color: #080a17;
+  font-weight: 950;
+}
+
+.field-help {
+  margin-top: 8px;
+  color: #aeb5d9;
+  line-height: 1.5;
+}
+
+.exact-box {
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(86, 246, 255, .07);
+  border: 1px solid rgba(86, 246, 255, .18);
+}
+
+.start-banner {
+  padding: 18px;
+  border: 1px solid rgba(255, 214, 107, .32);
+  border-radius: 16px;
+  background: rgba(255, 214, 107, .08);
+  margin-top: 16px;
+}
+
+.step-card {
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .03);
+  overflow: hidden;
+}
+.step-card summary {
+  cursor: pointer;
+  padding: 18px;
+  font-weight: 900;
+  font-size: 1.05rem;
+  list-style: none;
+}
+.step-card summary::-webkit-details-marker {
+  display: none;
+}
+.step-card[open] summary {
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(86, 246, 255, .06);
+}
+.step-body {
+  padding: 18px;
+}
+
+.screen-check {
+  display: grid;
+  gap: 10px;
+  margin: 15px 0;
+}
+.screen-check label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .035);
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.structure-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.structure-good,
+.structure-bad {
+  padding: 15px;
+  border-radius: 14px;
+}
+.structure-good {
+  border: 1px solid rgba(151, 255, 130, .25);
+  background: rgba(151, 255, 130, .07);
+}
+.structure-bad {
+  border: 1px solid rgba(255, 108, 124, .25);
+  background: rgba(255, 108, 124, .07);
+}
+
+.triage {
+  margin-top: 12px;
+  padding: 15px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .035);
+  white-space: pre-line;
+}
+.triage.good {
+  border-color: rgba(151, 255, 130, .35);
+  background: rgba(151, 255, 130, .08);
+}
+.triage.warn {
+  border-color: rgba(255, 214, 107, .35);
+  background: rgba(255, 214, 107, .08);
+}
+.triage.bad {
+  border-color: rgba(255, 108, 124, .35);
+  background: rgba(255, 108, 124, .08);
+}
+
+.hidden-evidence {
+  display: none !important;
+}
+
+.recovery-grid {
+  display: grid;
+  gap: 10px;
+}
+.recovery-grid details {
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, .025);
+}
+
+@media (max-width: 700px) {
+  .lesson-goal,
+  .structure-compare {
+    grid-template-columns: 1fr;
+  }
+}

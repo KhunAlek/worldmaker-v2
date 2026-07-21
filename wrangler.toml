@@ -1,0 +1,24 @@
+name = "worldmaker-v2"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "worldmaker-v2-db"
+database_id = "13dac6bc-8900-4287-bd97-1b49732c3f71"
+
+# Serve the three CSS files verbatim, byte-for-byte from src/assets — no rewriting.
+[[rules]]
+type = "Text"
+globs = ["**/*.css", "**/*.md"]
+fallthrough = true
+
+# Secrets (set with `wrangler secret put NAME` — never write these here):
+#   SITE_PASSWORD        the one shared password that gates the whole site
+#   SESSION_SECRET        random 32+ byte string, signs the login cookie
+#   ANTHROPIC_API_KEY     from console.anthropic.com
+#
+# Plain vars are fine in this file since they hold no secrets:
+[vars]
+MODEL_STRONG = "claude-sonnet-5"
+MODEL_FAST = "claude-haiku-4-5-20251001"
