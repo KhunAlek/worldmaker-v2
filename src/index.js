@@ -1758,6 +1758,10 @@ var index_default = {
         const approvedCount = all.filter((m) => m.status === "approved").length;
         return html(hqPage({ capabilities, currentMission: current, approvedCount }));
       }
+      if (path === "/internal/replan" && request.method === "POST") {
+        const mission = await planNextMission(env);
+        return json({ ok: true, mission });
+      }
       const lessonMatch = path.match(/^\/lesson\/([A-Za-z0-9-]+)$/);
       if (lessonMatch && request.method === "GET") {
         const mission = await getMission(env, lessonMatch[1]);
