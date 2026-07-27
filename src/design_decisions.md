@@ -83,11 +83,25 @@ page, not an itemized list. Don't itemize what isn't designed yet.
 ## 6. How a lesson gets written
 
 Every lesson must be written to the **Beginner Lesson and Evidence Standard**
-(separate document, unchanged, still fully authoritative) — plain-English explanation
-before any technical term, one new idea introduced at a time, a visible result stated
-up front, concrete recovery steps for likely mistakes, minimal evidence requested at
-the end. `mission-lessons.js` (Mission 3) and the fixed Mission 4 lesson are the
-concrete bar for what "done right" looks like — match that shape and tone.
+(separate document, still fully authoritative — it is a living document and does get
+revised; check its own contents rather than assuming it matches an earlier reading of
+it) — plain-English explanation before any technical term, one new idea introduced at
+a time, a visible result stated up front, concrete recovery steps for likely
+mistakes, minimal evidence requested at the end.
+
+Two separate things are worth matching in `mission-lessons.js` (Mission 3) and the
+Mission 4 lesson, and they are not the same bar:
+
+- **Teaching shape and tone** — the Understand → Do → Observe → Experiment → Fix →
+  Prove flow, plain English before jargon, concrete checkpoints and recovery steps.
+  M3 and M4 are the concrete bar for this, and stay the bar regardless of any future
+  edit to either file's specific content.
+- **Evidence field shape** — what Nick actually submits at the end. This is governed
+  entirely by the Standard document's own evidence-set rule (§16.1 as of this
+  writing), not by copying whatever fields M3 or M4 happen to contain. M3 and M4 are
+  currently examples that comply with that rule, but the rule is the source of truth,
+  not the examples — if the rule changes again later, update the examples to match
+  it, not the other way around.
 
 ## 7. The running skills record
 
@@ -112,11 +126,11 @@ itself, not a log of every attempt or every past AI review.
 
 ## 9. Progress still gates
 
-Nick must submit real proof that a lesson's result actually works — code, a
-screenshot, or a short video, plus which tests passed — before the AI plans his next
-lesson. This is not optional and not softened by the move to dynamic planning: the
-point is still that Nick understands and proves what he built, not that he
-accumulates lessons.
+Nick must submit real proof that a lesson's result actually works — following the
+evidence set defined in the Beginner Lesson and Evidence Standard §16.1 — and which
+tests passed, before the AI plans his next lesson. This is not optional and not
+softened by the move to dynamic planning: the point is still that Nick understands
+and proves what he built, not that he accumulates lessons.
 
 ## 10. Getting help
 

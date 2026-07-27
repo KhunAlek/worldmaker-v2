@@ -423,6 +423,8 @@ Preferred evidence forms:
 5. guided checklist;
 6. short understanding answer when genuinely useful.
 
+For the exact fixed evidence set every lesson uses, see §16.1.
+
 Manual hierarchy transcription is not the preferred learner workflow.
 
 Prefer:
@@ -449,8 +451,8 @@ Submission instructions must tell Nick exactly:
 Good examples:
 
 - “Take one screenshot with `Workspace > World > Resources` expanded.”
-- “Copy the current Output lines from this Play test.”
-- “Record a short video showing the NPC walk to Wood.”
+- “Paste your complete script here, not a screenshot of it.”
+- “Take two screenshots — one right after each click — so both moments are visible.”
 - “Show that Wood and Stone totals did not increase.”
 - “Remove `M8_TemporaryBlock` before taking the final screenshot.”
 
@@ -481,7 +483,60 @@ Mission 1 is normally limited to:
 
 ---
 
+### 16.1 The standard evidence set
+
+Every lesson uses the same fixed evidence set, in this order. Do not add fields
+beyond these without a specific reason tied to what that lesson's result actually
+requires.
+
+1. **Screenshot(s).** One, by default. Add more than one only when the lesson's
+   visible result can't be shown in a single frame — for example, a marker that
+   has to move between two objects across several clicks. When more than one is
+   needed, name each one to an exact moment ("after clicking NPC_1," "after
+   clicking NPC_2"), not a vague range of time. Every screenshot field shows the
+   exact instruction for that moment before the upload control, and shows a
+   preview of what was uploaded immediately after, so a wrong or blurry
+   screenshot is obvious before submission, not after.
+
+2. **Code, pasted as text.** Only on lessons where Nick wrote new code that
+   lesson. Paste the text itself, not a screenshot of it — a screenshot of code
+   is harder to check and easier to get wrong (glare, crop, blur) for no benefit
+   over the actual text.
+
+3. **One short answer: what happened, and what was hardest.** Always present,
+   always this single field — never split into a separate understanding question
+   and a separate "what went wrong" question. This is the one place a lesson's
+   own content problem, not just Nick's understanding, has a chance to show up in
+   his own words.
+
+No other evidence field is used by default. In particular:
+
+- Do not ask Nick to type out or describe an Explorer/Properties structure in
+  prose. This already contradicted the guidance above; treat this as the
+  enforced version of that rule. Use a screenshot instead, every time.
+- Do not request a screen recording by default. Video is added only when a
+  result genuinely cannot be proven by any number of still screenshots — meaning
+  it depends on continuous motion or exact timing, not multiple distinct
+  moments. Most "this happens over several steps" results are provable with two
+  or three named screenshots (see point 1) and don't need video at all.
+
+This subsection supersedes any per-lesson evidence design that conflicts with
+it. `mission-lessons.js` (M3) and the Mission 4 lesson have both been updated to
+use this exact evidence set and remain the tone and structure bar per the
+Design Decisions doc — for evidence field shape as well as teaching tone, not
+teaching tone alone. Any earlier saved copy of either file using a written
+Explorer/Properties summary, a separate understanding question, or (for M4) a
+screen recording is out of date and should be replaced with the version that
+matches this section.
+
+---
+
 ## 17. Understanding questions
+
+As of §16.1, the understanding check is not a separate field — it's asked as part
+of the single combined "what happened, and what was hardest" field every lesson
+already includes. The rules below are about how to word that part of the field
+well, not about adding a second, separate question.
 
 Use an understanding question only when it genuinely helps verify ownership or the central idea.
 
