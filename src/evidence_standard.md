@@ -648,10 +648,31 @@ No mission may be released until all applicable gates pass.
 
 ### Gate 2 — First-time-user usability
 
-- all first-use actions explained;
-- no unexplained technical term;
-- no hidden interface assumption;
-- every important action has a checkpoint.
+For every important learner action a mission introduces — creating, changing,
+selecting, moving, typing, running, testing, recording, or submitting something,
+whether or not it involves code — answer yes/no. Any "no" fails Gate 2 outright.
+
+1. States where to look (Explorer / Properties / Script Editor / Output / 3D
+   world / Play controls / GUI)?
+2. States the exact object, script path, service, or folder to open or select?
+3. States the exact literal text to type, click, move, or rename — no abstract
+   task label?
+4. Explains why, in ordinary English, before any technical term?
+5. States the exact visible checkpoint that should appear afterward?
+6. States what must *not* happen (duplicate object, wrong location, red error,
+   later-mission behavior, unwanted resource change)?
+7. Gives one concrete recovery check if the result differs?
+8. States how to restore any temporary experiment?
+
+For any step that introduces or changes code, in addition to the above:
+
+9. States exactly where the new code goes relative to Nick's current script —
+   an explicit anchor (e.g. "paste this immediately above
+   `commandRemote.OnServerEvent:Connect(...)`") or an explicit
+   replace-whole-file / replace-named-section instruction. Literal text alone
+   is not sufficient — location must be stated separately and explicitly.
+   (V1-M06 shipped with literal code but no stated placement; a paraphrase of
+   "checkpoints exist" didn't catch it.)
 
 ### Gate 3 — Mistake recovery
 

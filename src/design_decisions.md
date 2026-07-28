@@ -135,8 +135,16 @@ and proves what he built, not that he accumulates lessons.
 ## 10. Getting help
 
 Two ways, both AI-based: a quick "Help" button scoped to whatever step Nick is
-currently on, and an open chat for anything else. Neither writes Nick's code for him
-— both explain, ask questions, and point him toward the fix.
+currently on, and an open chat for anything else. Neither writes Nick's code for
+him. Help-chat questions fall into one of four categories: **placement/integration**
+("where does this go," "which line," "what file") gets a direct answer — the exact
+anchor relative to Nick's existing script, stated plainly. **Conceptual** ("why,"
+"how does this work," "what does this do") gets the explain-and-ask-questions
+approach. **Observed malfunction** ("it's red," "nothing happens," "it says nil")
+gets a direct diagnostic answer naming what's likely wrong, without withholding the
+fix behind further questions. **Unclear or mixed** questions get the immediate
+blocker addressed directly first, then a brief conceptual note after. Placement is
+not code-writing; it's orientation.
 
 ## 11. Your (parent) role
 

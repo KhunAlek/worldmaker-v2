@@ -112,6 +112,15 @@ Before approving or requesting changes on a submission:
   evidence being requested actually has a field it can go in per Step 3 — never
   ask Nick to submit something the form has no place for.
 
+## Step 4a — Nick-perspective execution trace
+
+In addition to the gate checks above, read through the mission step by step as
+Nick would, using only what he has actually been taught in prior *approved*
+missions (`Nick_Current_Progress.md`) and nothing else. At each step, state
+plainly whether Nick could complete it without guessing. If any step requires
+knowledge, an object, or a prior script state that hasn't actually been
+established for him, fail the gate and name the missing prerequisite.
+
 ## Step 5 — Log new engine findings
 
 If this pass surfaces a previously-unknown engine quirk, add it to

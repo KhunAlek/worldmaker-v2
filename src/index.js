@@ -10,6 +10,8 @@ import CANONICAL_FACTS from "./canonical_facts.md";
 import DESIGN_DECISIONS from "./design_decisions.md";
 import QA_SKILL from "./lesson_qa_skill.md";
 import KNOWN_ENGINE_BEHAVIORS from "./known_engine_behaviors.md";
+import LESSON_STRUCTURE_GAPS from "./lesson_structure_gaps.md";
+import HELP_CHAT_PRECEDENT from "./help_chat_precedent.md";
 var __defProp2 = Object.defineProperty;
 var __name2 = /* @__PURE__ */ __name((target, value) => __defProp2(target, "name", { value, configurable: true }), "__name");
 var __defProp22 = Object.defineProperty;
@@ -237,17 +239,27 @@ skipped a third time.
 === worldmaker-lesson-qa skill ===
 ${QA_SKILL}
 
+=== Beginner Lesson and Evidence Standard (Gates 1-8, checked literally below --
+do not work from a paraphrase or general memory of what these gates usually mean) ===
+${EVIDENCE_STANDARD}
+
 === Known Roblox engine behaviors already on record (check here before reasoning from scratch) ===
 ${KNOWN_ENGINE_BEHAVIORS}
+
+=== Known lesson-structure gaps already on record ===
+${LESSON_STRUCTURE_GAPS}
 
 Your job: apply Step 1 (trace every property or object state the mission's own
 visibleResult sentence depends on, through creation / before-first-action /
 after-first-action, checking real engine behavior not comment intent), Step 2
-(re-check against the Beginner Lesson and Evidence Standard's Gates 1-8), and
-Step 3 (confirm every entry in this mission's tests[] array is explicitly provable
+(go through Gate 2's numbered checklist above literally, item by item, including
+item 9's insertion-anchor requirement, then re-check the rest of Gates 1-8), Step 3
+(confirm every entry in this mission's tests[] array is explicitly provable
 from an entry in submission.fields[] -- either a dedicated field, or a stated joint
 mapping -- since this exact gap is what let V1-M05 demand evidence Nick had no field
-to submit) to the specific mission JSON you're given.
+to submit), and Step 4a (Nick-perspective execution trace, using only what Nick has
+actually been taught in prior approved missions) to the specific mission JSON
+you're given.
 
 If you find a real issue \u2014 an unverified default, a property left at a class
 default that breaks the visible result, a missing checkpoint/recovery/mistake entry
@@ -354,12 +366,52 @@ than he's actually built and been taught:
 ${worldStateNarrative}
 
 === Worldmaker Canonical Facts (never invent or alter these) ===
-${CANONICAL_FACTS}`;
+${CANONICAL_FACTS}
+
+=== Resolved Help-chat precedent ===
+${HELP_CHAT_PRECEDENT}`;
 }
 __name(chatSystemPrompt, "chatSystemPrompt");
 __name2(chatSystemPrompt, "chatSystemPrompt");
 __name22(chatSystemPrompt, "chatSystemPrompt");
 __name222(chatSystemPrompt, "chatSystemPrompt");
+async function classifyHelpQuestion(env, question) {
+  const raw = await callClaude(env, {
+    model: env.MODEL_FAST,
+    system: `Classify a learner's chat question into exactly one category. Reply with ONLY the category word, nothing else, no punctuation.
+
+placement -- asking where something goes: which line, what file, where to paste, where to put code or an object.
+conceptual -- asking why or how something works, or what something does.
+malfunction -- reporting something not working: an error, red screen, nothing happening, unexpected result.
+mixed -- combines an immediate blocker with a conceptual question.
+
+Reply with exactly one of: placement, conceptual, malfunction, mixed`,
+    messages: [{ role: "user", content: question }],
+    maxTokens: 10
+  });
+  const word = String(raw ?? "").trim().toLowerCase();
+  return ["placement", "conceptual", "malfunction", "mixed"].includes(word) ? word : "conceptual";
+}
+__name(classifyHelpQuestion, "classifyHelpQuestion");
+__name2(classifyHelpQuestion, "classifyHelpQuestion");
+__name22(classifyHelpQuestion, "classifyHelpQuestion");
+__name222(classifyHelpQuestion, "classifyHelpQuestion");
+function categoryInstruction(category) {
+  switch (category) {
+    case "placement":
+      return "\n\nThis question is asking WHERE something goes. Per design doc \xA710: give a direct answer -- state the exact anchor in your first sentence. Explain why only after. Do not withhold the placement behind further questions.";
+    case "malfunction":
+      return "\n\nNick is reporting something not working. Per design doc \xA710: give a direct diagnostic answer -- name what's likely wrong in your first sentence, checking the mission's recovery guidance and known-engine-behaviors reference first.";
+    case "mixed":
+      return "\n\nThis question mixes an immediate blocker with a conceptual question. Address the blocker directly first, then add a brief conceptual note after.";
+    default:
+      return "\n\nThis is a conceptual question. Explain, ask questions, and point Nick toward the fix, without writing the code for him.";
+  }
+}
+__name(categoryInstruction, "categoryInstruction");
+__name2(categoryInstruction, "categoryInstruction");
+__name22(categoryInstruction, "categoryInstruction");
+__name222(categoryInstruction, "categoryInstruction");
 function esc(str) {
   return String(str ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 }
@@ -1960,13 +2012,14 @@ __name222(handleHelp, "handleHelp");
 async function handleChat(request, env) {
   const body = await request.json();
   const worldState = await getWorldState(env);
+  const category = await classifyHelpQuestion(env, body.message || "");
   const reply = await callClaude(env, {
     model: env.MODEL_STRONG,
-    system: chatSystemPrompt(worldState),
+    system: chatSystemPrompt(worldState) + categoryInstruction(category),
     messages: [{ role: "user", content: body.message || "" }],
     maxTokens: 800
   });
-  await logEvent(env, "chat", `Q on ${body.mission_id || "(no mission)"}: ${String(body.message || "").slice(0, 140)}`);
+  await logEvent(env, "chat", `Q on ${body.mission_id || "(no mission)"} [${category}]: ${String(body.message || "").slice(0, 140)}`);
   return json({ reply });
 }
 __name(handleChat, "handleChat");
