@@ -44,3 +44,13 @@ CREATE TABLE IF NOT EXISTS world_state (
   narrative TEXT NOT NULL,             -- plain-English equivalent of Nick_Current_Progress.md
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Added for automatic inline name highlighting in lesson text (see
+-- Inline_Name_Highlighting_Spec.md). Grows on its own inside planNextMission() --
+-- no human ever edits this table directly.
+CREATE TABLE IF NOT EXISTS canonical_names (
+  name TEXT PRIMARY KEY,
+  category TEXT NOT NULL CHECK(category IN ('object','value')),
+  added_by_mission TEXT,               -- 'seed' for the initial bootstrap, else the mission id that introduced it
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
