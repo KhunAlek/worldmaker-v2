@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// index.js
+// src/index.js
 import STYLES_CSS from "./styles.css";
 import LANDING_CSS from "./landing.css";
 import LESSON_CSS from "./lesson_components.css";
@@ -18,6 +18,12 @@ var __defProp22 = Object.defineProperty;
 var __name22 = /* @__PURE__ */ __name2((target, value) => __defProp22(target, "name", { value, configurable: true }), "__name");
 var __defProp222 = Object.defineProperty;
 var __name222 = /* @__PURE__ */ __name22((target, value) => __defProp222(target, "name", { value, configurable: true }), "__name");
+var __defProp2222 = Object.defineProperty;
+var __name2222 = /* @__PURE__ */ __name222((target, value) => __defProp2222(target, "name", { value, configurable: true }), "__name");
+var __defProp22222 = Object.defineProperty;
+var __name22222 = /* @__PURE__ */ __name2222((target, value) => __defProp22222(target, "name", { value, configurable: true }), "__name");
+var __defProp222222 = Object.defineProperty;
+var __name222222 = /* @__PURE__ */ __name22222((target, value) => __defProp222222(target, "name", { value, configurable: true }), "__name");
 var COOKIE_NAME = "wm_session";
 var SESSION_HOURS = 24 * 30;
 async function hmacKey(secret) {
@@ -33,6 +39,9 @@ __name(hmacKey, "hmacKey");
 __name2(hmacKey, "hmacKey");
 __name22(hmacKey, "hmacKey");
 __name222(hmacKey, "hmacKey");
+__name2222(hmacKey, "hmacKey");
+__name22222(hmacKey, "hmacKey");
+__name222222(hmacKey, "hmacKey");
 async function sign(secret, payload) {
   const key = await hmacKey(secret);
   const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
@@ -42,6 +51,9 @@ __name(sign, "sign");
 __name2(sign, "sign");
 __name22(sign, "sign");
 __name222(sign, "sign");
+__name2222(sign, "sign");
+__name22222(sign, "sign");
+__name222222(sign, "sign");
 async function makeSessionCookie(env) {
   const expires = Date.now() + SESSION_HOURS * 3600 * 1e3;
   const payload = `ok.${expires}`;
@@ -53,6 +65,9 @@ __name(makeSessionCookie, "makeSessionCookie");
 __name2(makeSessionCookie, "makeSessionCookie");
 __name22(makeSessionCookie, "makeSessionCookie");
 __name222(makeSessionCookie, "makeSessionCookie");
+__name2222(makeSessionCookie, "makeSessionCookie");
+__name22222(makeSessionCookie, "makeSessionCookie");
+__name222222(makeSessionCookie, "makeSessionCookie");
 function clearSessionCookie() {
   return `${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
 }
@@ -60,6 +75,9 @@ __name(clearSessionCookie, "clearSessionCookie");
 __name2(clearSessionCookie, "clearSessionCookie");
 __name22(clearSessionCookie, "clearSessionCookie");
 __name222(clearSessionCookie, "clearSessionCookie");
+__name2222(clearSessionCookie, "clearSessionCookie");
+__name22222(clearSessionCookie, "clearSessionCookie");
+__name222222(clearSessionCookie, "clearSessionCookie");
 async function isAuthenticated(request, env) {
   const cookieHeader = request.headers.get("Cookie") || "";
   const match = cookieHeader.match(new RegExp(`${COOKIE_NAME}=([^;]+)`));
@@ -79,6 +97,9 @@ __name(isAuthenticated, "isAuthenticated");
 __name2(isAuthenticated, "isAuthenticated");
 __name22(isAuthenticated, "isAuthenticated");
 __name222(isAuthenticated, "isAuthenticated");
+__name2222(isAuthenticated, "isAuthenticated");
+__name22222(isAuthenticated, "isAuthenticated");
+__name222222(isAuthenticated, "isAuthenticated");
 function checkPassword(submitted, env) {
   const a = String(submitted || "");
   const b = String(env.SITE_PASSWORD || "");
@@ -91,6 +112,9 @@ __name(checkPassword, "checkPassword");
 __name2(checkPassword, "checkPassword");
 __name22(checkPassword, "checkPassword");
 __name222(checkPassword, "checkPassword");
+__name2222(checkPassword, "checkPassword");
+__name22222(checkPassword, "checkPassword");
+__name222222(checkPassword, "checkPassword");
 var ANTHROPIC_VERSION = "2023-06-01";
 async function callClaude(env, { model, system, messages, maxTokens = 2e3 }) {
   const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -128,6 +152,9 @@ __name(callClaude, "callClaude");
 __name2(callClaude, "callClaude");
 __name22(callClaude, "callClaude");
 __name222(callClaude, "callClaude");
+__name2222(callClaude, "callClaude");
+__name22222(callClaude, "callClaude");
+__name222222(callClaude, "callClaude");
 function extractJson(text) {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
@@ -140,6 +167,9 @@ __name(extractJson, "extractJson");
 __name2(extractJson, "extractJson");
 __name22(extractJson, "extractJson");
 __name222(extractJson, "extractJson");
+__name2222(extractJson, "extractJson");
+__name22222(extractJson, "extractJson");
+__name222222(extractJson, "extractJson");
 var MISSION_JSON_SHAPE = `{
   "id": "V1-M05",
   "number": 5,
@@ -223,6 +253,33 @@ __name(planningSystemPrompt, "planningSystemPrompt");
 __name2(planningSystemPrompt, "planningSystemPrompt");
 __name22(planningSystemPrompt, "planningSystemPrompt");
 __name222(planningSystemPrompt, "planningSystemPrompt");
+__name2222(planningSystemPrompt, "planningSystemPrompt");
+__name22222(planningSystemPrompt, "planningSystemPrompt");
+__name222222(planningSystemPrompt, "planningSystemPrompt");
+function nameExtractionSystemPrompt(knownNames) {
+  return `You will be given one Worldmaker mission's full JSON (already planned and
+QA-checked, not yet shown to Nick). Your only job: find any real Roblox object,
+script, folder, or property name, and any exact code identifier or value Nick would
+type or see, that this mission introduces for the first time -- meaning it is NOT
+already in this list of names already known to the site:
+
+${JSON.stringify(knownNames)}
+
+Two categories:
+- "objects": real fixed things (object names, script names, folder names, property
+  names, Roblox/Luau API terms) -- the kind of name that would appear the same way
+  every time it's mentioned, e.g. WorldServer, ResetWorldButton, MoveToFinished.
+- "values": exact code expressions or literal values Nick types or sees that are
+  specific to this mission's own code, not a reusable API term, e.g. a lookup
+  expression like homeForNPC["NPC_1"], or a specific literal this mission
+  introduces.
+
+Do not include generic English words, do not include anything already in the known
+list above, and do not include anything shorter than 3 characters. If nothing new
+was introduced, return empty arrays.
+
+Respond with ONLY this JSON shape, nothing else: {"objects": ["Name1", "Name2"], "values": ["expr1"]}`;
+}
 function qaSystemPrompt() {
   return `You are running a mandatory QA pass on a Worldmaker mission that was just
 generated by the planner, before it is saved and shown to Nick (age 11). This is
@@ -282,6 +339,9 @@ __name(qaSystemPrompt, "qaSystemPrompt");
 __name2(qaSystemPrompt, "qaSystemPrompt");
 __name22(qaSystemPrompt, "qaSystemPrompt");
 __name222(qaSystemPrompt, "qaSystemPrompt");
+__name2222(qaSystemPrompt, "qaSystemPrompt");
+__name22222(qaSystemPrompt, "qaSystemPrompt");
+__name222222(qaSystemPrompt, "qaSystemPrompt");
 function gradingSystemPrompt(mission) {
   return `You are grading Nick's submission for mission ${mission.id} \u2014 "${mission.title}" \u2014 in
 Nick // Worldmaker v2. Nick is 11. Per design doc \xA715, this project deliberately does
@@ -329,6 +389,9 @@ __name(gradingSystemPrompt, "gradingSystemPrompt");
 __name2(gradingSystemPrompt, "gradingSystemPrompt");
 __name22(gradingSystemPrompt, "gradingSystemPrompt");
 __name222(gradingSystemPrompt, "gradingSystemPrompt");
+__name2222(gradingSystemPrompt, "gradingSystemPrompt");
+__name22222(gradingSystemPrompt, "gradingSystemPrompt");
+__name222222(gradingSystemPrompt, "gradingSystemPrompt");
 function helpSystemPrompt(mission, stepTitle) {
   return `You are the quick "Help" button for Nick, age 11, on mission ${mission.id} \u2014 "${mission.title}"
 \u2014 currently on this exact step: "${stepTitle}".
@@ -348,6 +411,9 @@ __name(helpSystemPrompt, "helpSystemPrompt");
 __name2(helpSystemPrompt, "helpSystemPrompt");
 __name22(helpSystemPrompt, "helpSystemPrompt");
 __name222(helpSystemPrompt, "helpSystemPrompt");
+__name2222(helpSystemPrompt, "helpSystemPrompt");
+__name22222(helpSystemPrompt, "helpSystemPrompt");
+__name222222(helpSystemPrompt, "helpSystemPrompt");
 function chatSystemPrompt(worldStateNarrative) {
   return `You are the open-chat helper for Nick, age 11, in Nick // Worldmaker v2 \u2014 a
 Roblox Studio/Luau teaching project. Per design doc \xA73 and \xA710: you explain, teach,
@@ -375,6 +441,9 @@ __name(chatSystemPrompt, "chatSystemPrompt");
 __name2(chatSystemPrompt, "chatSystemPrompt");
 __name22(chatSystemPrompt, "chatSystemPrompt");
 __name222(chatSystemPrompt, "chatSystemPrompt");
+__name2222(chatSystemPrompt, "chatSystemPrompt");
+__name22222(chatSystemPrompt, "chatSystemPrompt");
+__name222222(chatSystemPrompt, "chatSystemPrompt");
 async function classifyHelpQuestion(env, question) {
   const raw = await callClaude(env, {
     model: env.MODEL_FAST,
@@ -396,6 +465,9 @@ __name(classifyHelpQuestion, "classifyHelpQuestion");
 __name2(classifyHelpQuestion, "classifyHelpQuestion");
 __name22(classifyHelpQuestion, "classifyHelpQuestion");
 __name222(classifyHelpQuestion, "classifyHelpQuestion");
+__name2222(classifyHelpQuestion, "classifyHelpQuestion");
+__name22222(classifyHelpQuestion, "classifyHelpQuestion");
+__name222222(classifyHelpQuestion, "classifyHelpQuestion");
 function categoryInstruction(category) {
   switch (category) {
     case "placement":
@@ -412,14 +484,153 @@ __name(categoryInstruction, "categoryInstruction");
 __name2(categoryInstruction, "categoryInstruction");
 __name22(categoryInstruction, "categoryInstruction");
 __name222(categoryInstruction, "categoryInstruction");
+__name2222(categoryInstruction, "categoryInstruction");
+__name22222(categoryInstruction, "categoryInstruction");
+__name222222(categoryInstruction, "categoryInstruction");
 function esc(str) {
   return String(str ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+function escRe(str) {
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function b64Encode(str) {
+  return btoa(unescape(encodeURIComponent(String(str ?? ""))));
+}
+async function ensureCanonicalNames(env) {
+  await env.DB.prepare(
+    "CREATE TABLE IF NOT EXISTS canonical_names (name TEXT PRIMARY KEY, category TEXT NOT NULL CHECK(category IN ('object','value')), added_by_mission TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+  ).run();
+  const row = await env.DB.prepare("SELECT COUNT(*) AS c FROM canonical_names").first();
+  if (row && row.c > 0) return;
+  const seedObjects = ["Workspace", "World", "Ground", "NPCs", "NPC_1", "NPC_2", "NPCHomes", "NPC_1_Home", "NPC_2_Home", "Resources", "WoodNode", "StoneNode", "TargetPoint", "Buildings", "BuildSite", "ReplicatedStorage", "Remotes", "CommandNPC", "BuildHut", "ResetWorld", "StatusMessage", "GameState", "Wood", "Stone", "HutBuilt", "ServerStorage", "Templates", "HutTemplate", "ServerScriptService", "WorldServer", "StarterGui", "CommandGui", "Panel", "SelectedNPCLabel", "WoodLabel", "StoneLabel", "HutCostLabel", "StatusLabel", "GatherWoodButton", "GatherStoneButton", "BuildHutButton", "ResetWorldButton", "CommandClient", "Humanoid", "HumanoidRootPart", "PrimaryPart", "ClickDetector", "Highlight", "RemoteEvent", "FireServer", "OnServerEvent", "TextButton", "Activated", "PathfindingService", "Waypoint", "MoveTo", "MoveToFinished", "WaitForChild", "selectedNPC", "selectionHighlight", "selectNPC", "connectNPC", "commandRemote", "requestGather", "npcFolder", "walkTo", "homeForNPC", "npcHomes", "homePart"];
+  const statements = seedObjects.map(
+    (name) => env.DB.prepare("INSERT OR IGNORE INTO canonical_names(name, category, added_by_mission) VALUES (?, 'object', 'seed')").bind(name)
+  );
+  await env.DB.batch(statements);
+  await logEvent(env, "system", `Seeded canonical_names table with ${seedObjects.length} known object/script/property names (first run only).`);
+}
+async function getCanonicalNames(env) {
+  const rows = await env.DB.prepare("SELECT name, category FROM canonical_names ORDER BY LENGTH(name) DESC").all();
+  return rows.results || [];
+}
+async function addCanonicalNames(env, entries, missionId) {
+  if (!entries || !entries.length) return;
+  const seen = /* @__PURE__ */ new Set();
+  const statements = [];
+  for (const e of entries) {
+    const name = String(e.name || "").trim();
+    const category = e.category === "value" ? "value" : "object";
+    if (!name || name.length < 3 || seen.has(name)) continue;
+    seen.add(name);
+    statements.push(env.DB.prepare("INSERT OR IGNORE INTO canonical_names(name, category, added_by_mission) VALUES (?, ?, ?)").bind(name, category, missionId));
+  }
+  if (statements.length) await env.DB.batch(statements);
+}
+function highlightNames(escapedText, names) {
+  if (!escapedText || !names || !names.length) return escapedText;
+  const catByName = /* @__PURE__ */ new Map();
+  const escapedNames = [];
+  for (const n of names) {
+    const escName = esc(n.name);
+    if (!catByName.has(escName)) {
+      catByName.set(escName, n.category);
+      escapedNames.push(escName);
+    }
+  }
+  if (!escapedNames.length) return escapedText;
+  const pattern = escapedNames.map(escRe).join("|");
+  const re = new RegExp(`(${pattern})`, "g");
+  return escapedText.replace(re, (m) => {
+    const cat = catByName.get(m) || "object";
+    const cls = cat === "value" ? "in-text-value" : "in-text-object";
+    return `<span class="${cls}">${m}</span>`;
+  });
 }
 __name(esc, "esc");
 __name2(esc, "esc");
 __name22(esc, "esc");
 __name222(esc, "esc");
-function shell({ title, active, body, extraHead = "" }) {
+__name2222(esc, "esc");
+__name22222(esc, "esc");
+__name222222(esc, "esc");
+var LUAU_KEYWORDS = /* @__PURE__ */ new Set(["and", "break", "do", "else", "elseif", "end", "false", "for", "function", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while", "continue", "export", "type"]);
+function highlightLuauCode(code) {
+  const src = String(code || "");
+  const n = src.length;
+  const declared = /* @__PURE__ */ new Set();
+  const declRe = /\blocal\s+function\s+([A-Za-z_][A-Za-z0-9_]*)|\blocal\s+([A-Za-z_][A-Za-z0-9_]*(?:\s*,\s*[A-Za-z_][A-Za-z0-9_]*)*)|\bfunction\s*\(([^)]*)\)|\bfor\s+([A-Za-z_][A-Za-z0-9_]*(?:\s*,\s*[A-Za-z_][A-Za-z0-9_]*)*)\s+(?:in|=)/g;
+  let m;
+  while (m = declRe.exec(src)) {
+    const group = m[1] || m[2] || m[3] || m[4] || "";
+    group.split(",").forEach((piece) => {
+      const clean = piece.trim().split(/\s|=/)[0];
+      if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(clean)) declared.add(clean);
+    });
+  }
+  let out = "";
+  let i = 0;
+  while (i < n) {
+    const ch = src[i];
+    if (ch === "-" && src[i + 1] === "-") {
+      if (src.slice(i, i + 4) === "--[[") {
+        let end2 = src.indexOf("]]", i + 4);
+        end2 = end2 === -1 ? n : end2 + 2;
+        out += `<span class="tok-comment">${esc(src.slice(i, end2))}</span>`;
+        i = end2;
+        continue;
+      }
+      let end = src.indexOf("\n", i);
+      end = end === -1 ? n : end;
+      out += `<span class="tok-comment">${esc(src.slice(i, end))}</span>`;
+      i = end;
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      const quote = ch;
+      let j = i + 1;
+      while (j < n && src[j] !== quote) {
+        if (src[j] === "\\") j++;
+        j++;
+      }
+      j = Math.min(j + 1, n);
+      out += `<span class="tok-string">${esc(src.slice(i, j))}</span>`;
+      i = j;
+      continue;
+    }
+    if (src.slice(i, i + 2) === "[[") {
+      let end = src.indexOf("]]", i + 2);
+      end = end === -1 ? n : end + 2;
+      out += `<span class="tok-string">${esc(src.slice(i, end))}</span>`;
+      i = end;
+      continue;
+    }
+    if (/[A-Za-z_]/.test(ch)) {
+      let j = i;
+      while (j < n && /[A-Za-z0-9_]/.test(src[j])) j++;
+      const word = src.slice(i, j);
+      if (LUAU_KEYWORDS.has(word)) {
+        out += `<span class="tok-keyword">${esc(word)}</span>`;
+      } else if (declared.has(word)) {
+        out += `<span class="tok-name">${esc(word)}</span>`;
+      } else {
+        out += esc(word);
+      }
+      i = j;
+      continue;
+    }
+    if (/[={}()\[\],.:;]/.test(ch)) {
+      out += `<span class="tok-punct">${esc(ch)}</span>`;
+      i++;
+      continue;
+    }
+    out += esc(ch);
+    i++;
+  }
+  return out;
+}
+__name(highlightLuauCode, "highlightLuauCode");
+__name2(highlightLuauCode, "highlightLuauCode");
+function shell({ title, active, body, extraHead = "", bodyClass = "" }) {
   const nav = [
     ["/hq", "Build HQ"],
     ["/parent", "Parent Report"]
@@ -430,11 +641,11 @@ function shell({ title, active, body, extraHead = "" }) {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${esc(title)} \u2014 Worldmaker</title>
-<link rel="stylesheet" href="/assets/styles.css" />
-<link rel="stylesheet" href="/assets/lesson-components.css" />
+<link rel="stylesheet" href="/assets/styles.css?v=${ASSET_VERSIONS["styles.css"]}" />
+<link rel="stylesheet" href="/assets/lesson-components.css?v=${ASSET_VERSIONS["lesson-components.css"]}" />
 ${extraHead}
 </head>
-<body>
+<body${bodyClass ? ` class="${esc(bodyClass)}"` : ""}>
 <a href="#main" class="skip-link">Skip to content</a>
 <header class="site-header">
   <div class="site-shell header-inner">
@@ -456,6 +667,9 @@ __name(shell, "shell");
 __name2(shell, "shell");
 __name22(shell, "shell");
 __name222(shell, "shell");
+__name2222(shell, "shell");
+__name22222(shell, "shell");
+__name222222(shell, "shell");
 function loginPage({ error } = {}) {
   return `<!doctype html>
 <html lang="en">
@@ -463,7 +677,7 @@ function loginPage({ error } = {}) {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Sign in \u2014 Worldmaker</title>
-<link rel="stylesheet" href="/assets/styles.css" />
+<link rel="stylesheet" href="/assets/styles.css?v=${ASSET_VERSIONS["styles.css"]}" />
 </head>
 <body>
 <main class="site-shell" style="max-width:440px;padding-top:14vh;">
@@ -490,6 +704,9 @@ __name(loginPage, "loginPage");
 __name2(loginPage, "loginPage");
 __name22(loginPage, "loginPage");
 __name222(loginPage, "loginPage");
+__name2222(loginPage, "loginPage");
+__name22222(loginPage, "loginPage");
+__name222222(loginPage, "loginPage");
 function landingPage() {
   return `<!doctype html>
 <html lang="en">
@@ -702,6 +919,9 @@ __name(landingPage, "landingPage");
 __name2(landingPage, "landingPage");
 __name22(landingPage, "landingPage");
 __name222(landingPage, "landingPage");
+__name2222(landingPage, "landingPage");
+__name22222(landingPage, "landingPage");
+__name222222(landingPage, "landingPage");
 function hqPage({ capabilities, currentMission, approvedCount }) {
   const cards = capabilities.map((cap) => {
     const cls = cap.status === "done" ? "approved" : "";
@@ -735,6 +955,9 @@ __name(hqPage, "hqPage");
 __name2(hqPage, "hqPage");
 __name22(hqPage, "hqPage");
 __name222(hqPage, "hqPage");
+__name2222(hqPage, "hqPage");
+__name22222(hqPage, "hqPage");
+__name222222(hqPage, "hqPage");
 function conceptCard(c) {
   return `<div class="concept"><b>${esc(c.name)}.</b> ${esc(c.text)}</div>`;
 }
@@ -742,19 +965,52 @@ __name(conceptCard, "conceptCard");
 __name2(conceptCard, "conceptCard");
 __name22(conceptCard, "conceptCard");
 __name222(conceptCard, "conceptCard");
-function stepCard(step, index) {
-  const actions = step.actions.map((a) => `<li>${esc(a)}</li>`).join("");
+__name2222(conceptCard, "conceptCard");
+__name22222(conceptCard, "conceptCard");
+__name222222(conceptCard, "conceptCard");
+var STAGE_WORDS = ["Understand", "Do", "Observe", "Experiment", "Fix", "Prove"];
+var STAGE_TITLE_RE = new RegExp("^(" + STAGE_WORDS.join("|") + ")\\s*[:\\u2014-]?\\s*(.*)$");
+function stageClassFor(title) {
+  const t = String(title || "").trim();
+  const m = t.match(STAGE_TITLE_RE);
+  return m ? "step-stage-" + m[1].toLowerCase() : "";
+}
+__name(stageClassFor, "stageClassFor");
+__name2(stageClassFor, "stageClassFor");
+__name22(stageClassFor, "stageClassFor");
+__name222(stageClassFor, "stageClassFor");
+__name2222(stageClassFor, "stageClassFor");
+__name22222(stageClassFor, "stageClassFor");
+__name222222(stageClassFor, "stageClassFor");
+function stageWordAndRestFor(title) {
+  const t = String(title || "").trim();
+  const m = t.match(STAGE_TITLE_RE);
+  if (!m) return { word: "", rest: t };
+  return { word: m[1], rest: m[2] };
+}
+__name(stageWordAndRestFor, "stageWordAndRestFor");
+__name2(stageWordAndRestFor, "stageWordAndRestFor");
+function stepCard(step, index, canonicalNames) {
+  const hl = (t) => highlightNames(esc(t), canonicalNames);
+  const actions = step.actions.map((a) => `<li>${hl(a)}</li>`).join("");
   const codeBlocks = (step.codeBlocks || []).map(
-    (cb) => `<p><strong>${esc(cb.label)}</strong></p><pre class="code-block">${esc(cb.code)}</pre>${cb.explanation ? `<p class="field-help">${esc(cb.explanation)}</p>` : ""}`
+    (cb) => `<div class="code-block-unit">
+      <div class="code-block-head"><strong>${esc(cb.label)}</strong><button type="button" class="code-expand-btn" data-raw="${b64Encode(cb.code)}" data-html="${b64Encode(highlightLuauCode(cb.code))}" data-label="${esc(cb.label)}">\u2922 View full code</button></div>
+      <pre class="code-block">${highlightLuauCode(cb.code)}</pre>
+      ${cb.explanation ? `<p class="field-help">${hl(cb.explanation)}</p>` : ""}
+    </div>`
   ).join("");
-  return `<details class="step-card" ${index === 0 ? "open" : ""}>
-  <summary>Step ${index + 1} \u2014 ${esc(step.title)}</summary>
+  const stageClass = stageClassFor(step.title);
+  const { word: stageWord, rest: titleRest } = stageWordAndRestFor(step.title);
+  const tag = stageWord ? `<span class="step-stage-tag">${esc(stageWord)}</span> ` : "";
+  return `<details class="step-card${stageClass ? " " + stageClass : ""}" id="step-${index + 1}" ${index === 0 ? "open" : ""}>
+  <summary>${tag}Step ${index + 1} \u2014 ${esc(titleRest || step.title)}</summary>
   <div class="step-body">
     <ol>${actions}</ol>
     ${codeBlocks}
-    <div class="checkpoint"><strong>Checkpoint:</strong> ${esc(step.checkpoint)}</div>
-    <div class="triage warn"><strong>If it's not right yet:</strong> ${esc(step.recovery)}</div>
-    <button type="button" class="button button-secondary help-btn" data-step="${esc(step.title)}">Help with this step</button>
+    <div class="checkpoint"><strong>Checkpoint:</strong> ${hl(step.checkpoint)}</div>
+    <div class="recovery"><strong>If it's not right yet:</strong> ${hl(step.recovery)}</div>
+    <button type="button" class="button-help help-btn" data-step="${esc(step.title)}">\u{1F4AC} Help with this step</button>
     <div class="hint-box" data-hint-for="${esc(step.title)}" hidden></div>
   </div>
 </details>`;
@@ -763,9 +1019,27 @@ __name(stepCard, "stepCard");
 __name2(stepCard, "stepCard");
 __name22(stepCard, "stepCard");
 __name222(stepCard, "stepCard");
-function lessonPage({ mission, submitResult, missionAvailable, notice }) {
-  const codeBlock = mission.code ? `<h3>Starting code reference</h3><pre class="code-block">${esc(mission.code)}</pre>` : "";
-  const steps = mission.steps.map(stepCard).join("");
+__name2222(stepCard, "stepCard");
+__name22222(stepCard, "stepCard");
+__name222222(stepCard, "stepCard");
+function factListOrParagraph(text, cssClass) {
+  const raw = String(text || "").trim();
+  if (!raw) return "";
+  const sentences = raw.split(/(?<=[.!?])\s+(?=[A-Z0-9])/).map((s) => s.trim()).filter(Boolean);
+  if (sentences.length < 2) return `<p class="${cssClass || ""}">${esc(raw)}</p>`;
+  return `<ul class="fact-list">${sentences.map((s) => `<li>${esc(s)}</li>`).join("")}</ul>`;
+}
+__name(factListOrParagraph, "factListOrParagraph");
+__name2(factListOrParagraph, "factListOrParagraph");
+function lessonPage({ mission, submitResult, missionAvailable, notice, canonicalNames }) {
+  const codeBlock = mission.code ? `<h3>Starting code reference</h3><div class="code-block-unit"><div class="code-block-head code-block-head-plain"><button type="button" class="code-expand-btn" data-raw="${b64Encode(mission.code)}" data-html="${b64Encode(highlightLuauCode(mission.code))}" data-label="Starting code reference">\u2922 View full code</button></div><pre class="code-block">${highlightLuauCode(mission.code)}</pre></div>` : "";
+  const stepMeta = mission.steps.map((s, i) => ({ index: i, id: `step-${i + 1}`, ...stageWordAndRestFor(s.title) }));
+  const steps = mission.steps.map((s, i) => stepCard(s, i, canonicalNames)).join("");
+  const stepCount = mission.steps.length;
+  const navSubsteps = stepMeta.map((s) => {
+    const stageClass = s.word ? "step-stage-" + s.word.toLowerCase() : "";
+    return `<li><a href="#${s.id}" class="nav-substep${s.index === 0 ? " opened current" : ""}${stageClass ? " " + stageClass : ""}" data-step-link="${s.id}" onclick="document.getElementById('${s.id}').open=true">${s.word ? `<span class="dot"></span> ${s.index + 1} \xB7 ${esc(s.word)}` : `<span class="dot"></span> Step ${s.index + 1}`}</a></li>`;
+  }).join("");
   const tests = mission.tests.map((t) => `
     <div class="test-card">
       <strong>${esc(t.id)} \u2014 ${esc(t.name)}</strong>
@@ -802,18 +1076,32 @@ function lessonPage({ mission, submitResult, missionAvailable, notice }) {
   return shell({
     title: mission.title,
     active: "/hq",
+    bodyClass: "mission-page",
     body: `
-<div class="mission-header card">
-  <div class="mission-meta"><span class="status status-not-submitted">${esc(mission.difficulty)}</span><span class="status">${esc(mission.id)}</span></div>
+<div id="mission-brief" class="mission-header card" style="scroll-margin-top:112px;">
+  <div class="mission-meta"><span class="badge badge-difficulty">\u25CF ${esc(mission.difficulty)}</span><span class="badge badge-id">\u25CF ${esc(mission.id)}</span></div>
   <h1>${esc(mission.title)}</h1>
   <p class="lead">${esc(mission.objective)}</p>
 </div>
 ${notice ? `<p class="local-notice">${esc(notice)}</p>` : ""}
 <style>
-  .page-layout { display: grid; grid-template-columns: 360px minmax(0,1fr); gap: 24px; align-items: start; }
-  .ask-panel { position: sticky; top: 84px; border: 1px solid rgba(86,246,255,.34); border-radius: 22px; padding: 22px; background: linear-gradient(150deg, rgba(180,122,255,.12), rgba(255,255,255,.025)); box-shadow: 0 24px 70px rgba(0,0,0,.38); }
-  .ask-panel h2 { font-size: 1.15rem; margin: 0 0 6px; }
-  .ask-panel textarea#chatInput { min-height: 220px; }
+  .ask-panel { position: sticky; top: 92px; max-height: calc(100vh - 112px); border: 1px solid rgba(86,246,255,.34); border-radius: 22px; padding: 22px; background: linear-gradient(150deg, rgba(180,122,255,.12), rgba(255,255,255,.025)); display: flex; flex-direction: column; }
+  .ask-panel h2 { font-size: 1.15rem; margin: 0 0 6px; flex-shrink: 0; }
+  .ask-panel textarea#chatInput { min-height: 78px; flex-shrink: 0; }
+  .chat-log { flex: 1 1 auto; min-height: 60px; max-height: 40vh; overflow: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; padding: 6px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(0,0,0,.16); }
+  .chat-log:empty { display: none; border: none; background: none; min-height: 0; margin-bottom: 0; padding: 0; }
+  .chat-msg { max-width: 88%; padding: 12px 14px; border-radius: 14px; line-height: 1.55; overflow-wrap: anywhere; word-break: break-word; font-size: .92rem; }
+  .chat-msg p { margin: 0 0 8px; }
+  .chat-msg p:last-child { margin-bottom: 0; }
+  .chat-msg ul, .chat-msg ol { margin: 6px 0; padding-left: 22px; }
+  .chat-msg h1, .chat-msg h2, .chat-msg h3 { margin: 4px 0 8px; font-size: 1.02rem; }
+  .chat-msg code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: rgba(255,255,255,.1); border-radius: 5px; padding: 1px 5px; font-size: .87em; overflow-wrap: anywhere; }
+  .chat-msg pre { margin: 8px 0; padding: 12px; border-radius: 10px; background: #090b1d; border: 1px solid rgba(255,255,255,.12); overflow-x: auto; }
+  .chat-msg pre code { background: none; padding: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .chat-msg-user { align-self: flex-end; background: rgba(86,246,255,.14); border: 1px solid rgba(86,246,255,.3); border-bottom-right-radius: 4px; }
+  .chat-msg-claude { align-self: flex-start; background: rgba(180,122,255,.12); border: 1px solid rgba(180,122,255,.28); border-bottom-left-radius: 4px; }
+  .chat-msg-pending { align-self: flex-start; color: var(--muted); font-style: italic; background: transparent; border: none; padding: 4px 14px; }
+  .chat-msg-label { display: block; font-size: .68rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; opacity: .65; margin-bottom: 4px; }
   .evidence-divider { display:flex; align-items:center; gap:14px; margin: 30px 0 18px; color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 900; }
   .evidence-divider::before, .evidence-divider::after { content:""; flex:1; height:1px; background: var(--line); }
   .evidence-field { border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 18px; background: rgba(255,255,255,.03); margin-bottom: 16px; }
@@ -822,47 +1110,56 @@ ${notice ? `<p class="local-notice">${esc(notice)}</p>` : ""}
   .shot-row { display: grid; grid-template-columns: 140px 1fr; gap: 16px; align-items: start; }
   .shot-preview { width: 140px; height: 90px; border-radius: 12px; border: 1px dashed rgba(255,255,255,.22); background: rgba(255,255,255,.025); display: grid; place-items: center; overflow: hidden; color: var(--muted); font-size: .7rem; text-align: center; padding: 6px; }
   .shot-preview img { width: 100%; height: 100%; object-fit: cover; }
-  .upload-btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 11px 15px; background: rgba(255,255,255,.06); color: var(--text); font-weight: 850; cursor: pointer; font-size: .9rem; }
-  .upload-btn:hover { border-color: rgba(86,246,255,.34); }
   .upload-status { margin-top: 8px; font-size: .82rem; color: var(--lime); display: none; }
   .upload-status.show { display: block; }
-  @media (max-width: 980px) { .page-layout { grid-template-columns: 1fr; } .ask-panel { position: static; } .shot-row { grid-template-columns: 1fr; } }
+  .form-card { border-color: rgba(180,122,255,.4); background: linear-gradient(145deg, rgba(180,122,255,.1), rgba(255,255,255,.025)); }
+  .test-zone { border-color: rgba(255,214,107,.35); background: linear-gradient(145deg, rgba(255,214,107,.09), rgba(255,255,255,.025)); }
 </style>
-<div class="page-layout">
-  <aside class="ask-panel card">
-    <h2>Ask a question</h2>
-    <div id="chatLog" style="max-height:260px;overflow:auto;display:grid;gap:8px;margin-bottom:10px;"></div>
-    <form id="chatForm" class="form-grid">
-      <textarea id="chatInput" placeholder="Ask anything about this mission..."></textarea>
-      <div class="form-actions"><button type="submit" class="button button-secondary">Ask</button></div>
-    </form>
-  </aside>
-  <div>
+<div class="layout-3col">
+  <nav class="mission-nav">
+    <div class="nav-kicker">Mission contents</div>
+    <ul class="nav-list">
+      <li><a href="#mission-brief" class="nav-item"><span class="dot"></span> Mission brief</a></li>
+      <li><a href="#new-ideas" class="nav-item"><span class="dot"></span> New ideas</a></li>
+      <li><a href="#explorer-structure" class="nav-item"><span class="dot"></span> Explorer structure</a></li>
+      <li><a href="#steps-section" class="nav-item active"><span class="dot"></span> Steps</a></li>
+    </ul>
+    <ul class="nav-substeps" id="navSubsteps">${navSubsteps}</ul>
+    <ul class="nav-list">
+      <li><a href="#mission-tests" class="nav-item"><span class="dot"></span> Mission tests</a></li>
+      <li><a href="#submit-section" class="nav-item"><span class="dot"></span> Submit</a></li>
+    </ul>
+    <div class="nav-progress">
+      <div class="progress-track"><div class="progress-fill" id="navProgressFill" style="width:${stepCount ? Math.round(100 / stepCount) : 0}%;"></div></div>
+      <div class="progress-label"><span>Mission progress</span><b id="navProgressLabel">1 of ${stepCount} step${stepCount === 1 ? "" : "s"} opened</b></div>
+    </div>
+  </nav>
+  <div class="content-col">
     <div class="content-card">
       <h2>Why it matters</h2><p>${esc(mission.whyItMatters)}</p>
-      <h2 style="margin-top:18px;">Before you start</h2><p>${esc(mission.startingState)}</p>
-      <h2 style="margin-top:18px;">When you're done</h2><p class="expected">${esc(mission.visibleResult)}</p>
+      <h2 style="margin-top:18px;">Before you start</h2>${factListOrParagraph(mission.startingState)}
+      <h2 style="margin-top:18px;">When you're done</h2><div class="callout"><strong>${esc(mission.visibleResult)}</strong></div>
     </div>
-    <div class="content-card">
+    <div id="new-ideas" class="content-card" style="scroll-margin-top:112px;">
       <h2>New ideas in this mission</h2>
       <div class="concepts">${mission.concepts.map(conceptCard).join("")}</div>
     </div>
-    <div class="content-card">
+    <div id="explorer-structure" class="content-card" style="scroll-margin-top:112px;">
       <h2>Target Explorer structure</h2>
       <pre class="code-block">${esc(mission.requiredHierarchy)}</pre>
       ${codeBlock}
     </div>
-    <div class="content-card lesson-path">
+    <div id="steps-section" class="content-card lesson-path" style="scroll-margin-top:112px;">
       <h2>Steps</h2>
       ${steps}
     </div>
-    <div class="content-card">
+    <div id="mission-tests" class="content-card test-zone" style="scroll-margin-top:112px;">
       <h2>Mission tests</h2>
       <div class="test-list">${tests}</div>
     </div>
 
     <div class="evidence-divider">Prove it worked</div>
-    <div class="form-card card" id="submitCard">
+    <div id="submit-section" class="form-card card" style="scroll-margin-top:112px;">
       ${alreadyApproved ? `<div class="callout"><strong>Approved.</strong> This mission is done \u2014 you're just looking back at it. <a href="/hq">Back to Build HQ</a></div>` : `
       <h2>Submit this mission</h2>
       <p class="field-help">Fill in everything below honestly \u2014 this gets checked for real, not skimmed.</p>
@@ -876,9 +1173,64 @@ ${notice ? `<p class="local-notice">${esc(notice)}</p>` : ""}
       <div id="feedbackBox"></div>
     </div>
   </div>
+  <aside class="ask-panel card chat-panel">
+    <h2>Ask a question</h2>
+    <div id="chatLog" class="chat-log"></div>
+    <form id="chatForm" class="form-grid">
+      <textarea id="chatInput" placeholder="Ask anything about this mission..."></textarea>
+      <div class="form-actions"><button type="submit" class="button button-secondary">Ask</button></div>
+    </form>
+  </aside>
+</div>
+<div class="code-modal-backdrop" id="codeModalBackdrop" hidden>
+  <div class="code-modal" role="dialog" aria-modal="true" aria-labelledby="codeModalLabel">
+    <div class="code-modal-head">
+      <strong id="codeModalLabel">Full code</strong>
+      <div class="code-modal-actions">
+        <button type="button" class="code-modal-copy" id="codeModalCopy">Copy</button>
+        <button type="button" class="code-modal-close" id="codeModalClose">Close</button>
+      </div>
+    </div>
+    <div class="code-modal-body"><pre id="codeModalPre"></pre></div>
+  </div>
 </div>
 <script>
 const MISSION_ID = ${JSON.stringify(mission.id)};
+
+(function () {
+  const backdrop = document.getElementById("codeModalBackdrop");
+  const pre = document.getElementById("codeModalPre");
+  const label = document.getElementById("codeModalLabel");
+  const copyBtn = document.getElementById("codeModalCopy");
+  const closeBtn = document.getElementById("codeModalClose");
+  function decodeRaw(b64) {
+    try { return decodeURIComponent(escape(atob(b64))); } catch (e) { return ""; }
+  }
+  function openModal(raw, htmlB64, title) {
+    pre.dataset.raw = raw;
+    pre.innerHTML = htmlB64 ? decodeRaw(htmlB64) : "";
+    label.textContent = title || "Full code";
+    copyBtn.textContent = "Copy";
+    copyBtn.classList.remove("copied");
+    backdrop.hidden = false;
+  }
+  function closeModal() { backdrop.hidden = true; }
+  document.querySelectorAll(".code-expand-btn").forEach((btn) => {
+    btn.addEventListener("click", () => openModal(decodeRaw(btn.dataset.raw), btn.dataset.html, btn.dataset.label));
+  });
+  closeBtn.addEventListener("click", closeModal);
+  backdrop.addEventListener("click", (e) => { if (e.target === backdrop) closeModal(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !backdrop.hidden) closeModal(); });
+  copyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(pre.dataset.raw || pre.textContent);
+      copyBtn.textContent = "Copied!";
+      copyBtn.classList.add("copied");
+    } catch (e) {
+      copyBtn.textContent = "Couldn't copy";
+    }
+  });
+})();
 
 document.querySelectorAll(".help-btn").forEach((btn) => {
   btn.addEventListener("click", async () => {
@@ -979,14 +1331,70 @@ if (submitFormEl) submitFormEl.addEventListener("submit", async (e) => {
 });
 
 const chatLog = document.getElementById("chatLog");
+function chatEscape(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function chatFormat(raw) {
+  const text = String(raw || "");
+  const codeBlocks = [];
+  let working = text.replace(/\`\`\`([a-zA-Z0-9]*)\\n?([\\s\\S]*?)\`\`\`/g, (_, lang, code) => {
+    codeBlocks.push(chatEscape(code.replace(/\\n$/, "")));
+    return "\\0CODEBLOCK" + (codeBlocks.length - 1) + "\\0";
+  });
+  working = chatEscape(working);
+  working = working.replace(/\`([^\`\\n]+)\`/g, "<code>$1</code>");
+  working = working.replace(/\\*\\*([^*\\n]+)\\*\\*/g, "<strong>$1</strong>");
+  working = working.replace(/^### (.*)$/gm, "<h3>$1</h3>");
+  working = working.replace(/^## (.*)$/gm, "<h3>$1</h3>");
+  working = working.replace(/^# (.*)$/gm, "<h3>$1</h3>");
+  const lines = working.split("\\n");
+  let html = "";
+  let listOpen = false;
+  let para = [];
+  function flushPara() {
+    if (para.length) { html += "<p>" + para.join("<br>") + "</p>"; para = []; }
+  }
+  for (const line of lines) {
+    const bullet = line.match(/^\\s*[-*]\\s+(.*)$/);
+    if (bullet) {
+      flushPara();
+      if (!listOpen) { html += "<ul>"; listOpen = true; }
+      html += "<li>" + bullet[1] + "</li>";
+      continue;
+    }
+    if (listOpen) { html += "</ul>"; listOpen = false; }
+    if (line.startsWith("<h3>")) { flushPara(); html += line; continue; }
+    if (/^\\0CODEBLOCK\\d+\\0$/.test(line.trim())) { flushPara(); html += line.trim(); continue; }
+    if (line.trim() === "") { flushPara(); continue; }
+    para.push(line);
+  }
+  if (listOpen) html += "</ul>";
+  flushPara();
+  html = html.replace(/\\0CODEBLOCK(\\d+)\\0/g, (_, i) => "<pre><code>" + codeBlocks[Number(i)] + "</code></pre>");
+  return html || chatEscape(text);
+}
+function appendChatMessage(who, text) {
+  const cls = who === "user" ? "chat-msg-user" : "chat-msg-claude";
+  const label = who === "user" ? "You" : "Claude";
+  const div = document.createElement("div");
+  div.className = "chat-msg " + cls;
+  div.innerHTML = '<span class="chat-msg-label">' + label + "</span>" + chatFormat(text);
+  chatLog.appendChild(div);
+  chatLog.scrollTop = chatLog.scrollHeight;
+  return div;
+}
 document.getElementById("chatForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const input = document.getElementById("chatInput");
   const text = input.value.trim();
   if (!text) return;
-  chatLog.insertAdjacentHTML("beforeend", '<div><strong>You:</strong> ' + text.replace(/</g,"&lt;") + '</div>');
+  appendChatMessage("user", text);
   input.value = "";
-  chatLog.insertAdjacentHTML("beforeend", '<div id="pending"><em>Thinking...</em></div>');
+  const pending = document.createElement("div");
+  pending.className = "chat-msg chat-msg-pending";
+  pending.id = "pending";
+  pending.textContent = "Thinking...";
+  chatLog.appendChild(pending);
   chatLog.scrollTop = chatLog.scrollHeight;
   const res = await fetch("/api/chat", {
     method: "POST",
@@ -995,9 +1403,37 @@ document.getElementById("chatForm").addEventListener("submit", async (e) => {
   });
   const data = await res.json();
   document.getElementById("pending").remove();
-  chatLog.insertAdjacentHTML("beforeend", '<div><strong>Claude:</strong> ' + (data.reply || data.error || "Something went wrong.").replace(/</g,"&lt;") + '</div>');
-  chatLog.scrollTop = chatLog.scrollHeight;
+  appendChatMessage("claude", data.reply || data.error || "Something went wrong.");
 });
+
+/* Left-nav "steps opened" tracking \u2014 visual only. Resets each page load;
+   it is not saved anywhere and never touches grading or submission. */
+(function () {
+  const stepCards = Array.from(document.querySelectorAll(".step-card"));
+  const totalSteps = stepCards.length;
+  const openedIds = new Set();
+  stepCards.forEach((card) => { if (card.open) openedIds.add(card.id); });
+  function syncNav() {
+    document.querySelectorAll(".nav-substep").forEach((link) => {
+      const id = link.dataset.stepLink;
+      const card = document.getElementById(id);
+      link.classList.toggle("opened", openedIds.has(id));
+      link.classList.toggle("current", !!(card && card.open));
+    });
+    const fill = document.getElementById("navProgressFill");
+    const label = document.getElementById("navProgressLabel");
+    const count = openedIds.size;
+    if (fill) fill.style.width = (totalSteps ? Math.round((count / totalSteps) * 100) : 0) + "%";
+    if (label) label.textContent = count + " of " + totalSteps + " step" + (totalSteps === 1 ? "" : "s") + " opened";
+  }
+  stepCards.forEach((card) => {
+    card.addEventListener("toggle", () => {
+      if (card.open) openedIds.add(card.id);
+      syncNav();
+    });
+  });
+  syncNav();
+})();
 <\/script>`
   });
 }
@@ -1005,6 +1441,9 @@ __name(lessonPage, "lessonPage");
 __name2(lessonPage, "lessonPage");
 __name22(lessonPage, "lessonPage");
 __name222(lessonPage, "lessonPage");
+__name2222(lessonPage, "lessonPage");
+__name22222(lessonPage, "lessonPage");
+__name222222(lessonPage, "lessonPage");
 function parentReportPage({ events, missionSummaries }) {
   const rows = events.map((e) => `
     <div class="attempt">
@@ -1031,6 +1470,9 @@ __name(parentReportPage, "parentReportPage");
 __name2(parentReportPage, "parentReportPage");
 __name22(parentReportPage, "parentReportPage");
 __name222(parentReportPage, "parentReportPage");
+__name2222(parentReportPage, "parentReportPage");
+__name22222(parentReportPage, "parentReportPage");
+__name222222(parentReportPage, "parentReportPage");
 var CAPABILITIES = [
   { key: "two_settlers", order: 1, icon: "\u{1F9CD}", title: "Two settlers exist in the world" },
   { key: "select_settler", order: 2, icon: "\u{1F446}", title: "Select a settler" },
@@ -1632,6 +2074,9 @@ __name(ensureSeeded, "ensureSeeded");
 __name2(ensureSeeded, "ensureSeeded");
 __name22(ensureSeeded, "ensureSeeded");
 __name222(ensureSeeded, "ensureSeeded");
+__name2222(ensureSeeded, "ensureSeeded");
+__name22222(ensureSeeded, "ensureSeeded");
+__name222222(ensureSeeded, "ensureSeeded");
 async function getWorldState(env) {
   const row = await env.DB.prepare("SELECT narrative FROM world_state WHERE id = 1").first();
   return row ? row.narrative : DEFAULT_WORLD_STATE;
@@ -1640,6 +2085,9 @@ __name(getWorldState, "getWorldState");
 __name2(getWorldState, "getWorldState");
 __name22(getWorldState, "getWorldState");
 __name222(getWorldState, "getWorldState");
+__name2222(getWorldState, "getWorldState");
+__name22222(getWorldState, "getWorldState");
+__name222222(getWorldState, "getWorldState");
 async function setWorldState(env, narrative) {
   await env.DB.prepare(
     "INSERT INTO world_state(id, narrative, updated_at) VALUES (1, ?, CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET narrative = excluded.narrative, updated_at = excluded.updated_at"
@@ -1649,6 +2097,9 @@ __name(setWorldState, "setWorldState");
 __name2(setWorldState, "setWorldState");
 __name22(setWorldState, "setWorldState");
 __name222(setWorldState, "setWorldState");
+__name2222(setWorldState, "setWorldState");
+__name22222(setWorldState, "setWorldState");
+__name222222(setWorldState, "setWorldState");
 async function logEvent(env, kind, message) {
   await env.DB.prepare("INSERT INTO events(kind, message) VALUES (?, ?)").bind(kind, message).run();
 }
@@ -1656,6 +2107,9 @@ __name(logEvent, "logEvent");
 __name2(logEvent, "logEvent");
 __name22(logEvent, "logEvent");
 __name222(logEvent, "logEvent");
+__name2222(logEvent, "logEvent");
+__name22222(logEvent, "logEvent");
+__name222222(logEvent, "logEvent");
 async function getAllMissions(env) {
   const rows = await env.DB.prepare("SELECT * FROM missions ORDER BY number ASC").all();
   return rows.results.map((r) => ({ ...JSON.parse(r.content_json), status: r.status, approved_at: r.approved_at, capability_key: r.capability_key }));
@@ -1664,6 +2118,9 @@ __name(getAllMissions, "getAllMissions");
 __name2(getAllMissions, "getAllMissions");
 __name22(getAllMissions, "getAllMissions");
 __name222(getAllMissions, "getAllMissions");
+__name2222(getAllMissions, "getAllMissions");
+__name22222(getAllMissions, "getAllMissions");
+__name222222(getAllMissions, "getAllMissions");
 async function getMission(env, id) {
   const row = await env.DB.prepare("SELECT * FROM missions WHERE id = ?").bind(id).first();
   if (!row) return null;
@@ -1673,6 +2130,9 @@ __name(getMission, "getMission");
 __name2(getMission, "getMission");
 __name22(getMission, "getMission");
 __name222(getMission, "getMission");
+__name2222(getMission, "getMission");
+__name22222(getMission, "getMission");
+__name222222(getMission, "getMission");
 async function getCurrentMission(env) {
   const row = await env.DB.prepare("SELECT * FROM missions WHERE status = 'active' ORDER BY number DESC LIMIT 1").first();
   if (!row) return null;
@@ -1682,6 +2142,9 @@ __name(getCurrentMission, "getCurrentMission");
 __name2(getCurrentMission, "getCurrentMission");
 __name22(getCurrentMission, "getCurrentMission");
 __name222(getCurrentMission, "getCurrentMission");
+__name2222(getCurrentMission, "getCurrentMission");
+__name22222(getCurrentMission, "getCurrentMission");
+__name222222(getCurrentMission, "getCurrentMission");
 async function saveDynamicMission(env, missionObj) {
   await env.DB.prepare(
     "INSERT INTO missions(id, number, title, status, capability_key, content_json) VALUES (?, ?, ?, 'active', ?, ?)"
@@ -1691,6 +2154,9 @@ __name(saveDynamicMission, "saveDynamicMission");
 __name2(saveDynamicMission, "saveDynamicMission");
 __name22(saveDynamicMission, "saveDynamicMission");
 __name222(saveDynamicMission, "saveDynamicMission");
+__name2222(saveDynamicMission, "saveDynamicMission");
+__name22222(saveDynamicMission, "saveDynamicMission");
+__name222222(saveDynamicMission, "saveDynamicMission");
 async function approveMission(env, id) {
   await env.DB.prepare("UPDATE missions SET status = 'approved', approved_at = CURRENT_TIMESTAMP WHERE id = ?").bind(id).run();
 }
@@ -1698,6 +2164,9 @@ __name(approveMission, "approveMission");
 __name2(approveMission, "approveMission");
 __name22(approveMission, "approveMission");
 __name222(approveMission, "approveMission");
+__name2222(approveMission, "approveMission");
+__name22222(approveMission, "approveMission");
+__name222222(approveMission, "approveMission");
 async function nextSubmissionAttempt(env, missionId) {
   const row = await env.DB.prepare("SELECT COUNT(*) AS c FROM submissions WHERE mission_id = ?").bind(missionId).first();
   return (row?.c || 0) + 1;
@@ -1706,6 +2175,9 @@ __name(nextSubmissionAttempt, "nextSubmissionAttempt");
 __name2(nextSubmissionAttempt, "nextSubmissionAttempt");
 __name22(nextSubmissionAttempt, "nextSubmissionAttempt");
 __name222(nextSubmissionAttempt, "nextSubmissionAttempt");
+__name2222(nextSubmissionAttempt, "nextSubmissionAttempt");
+__name22222(nextSubmissionAttempt, "nextSubmissionAttempt");
+__name222222(nextSubmissionAttempt, "nextSubmissionAttempt");
 async function saveSubmission(env, { id, missionId, attempt, fields, understanding, verdict, feedback }) {
   await env.DB.prepare(
     "INSERT INTO submissions(id, mission_id, attempt_number, fields_json, understanding_answer, verdict, feedback_json) VALUES (?,?,?,?,?,?,?)"
@@ -1715,6 +2187,9 @@ __name(saveSubmission, "saveSubmission");
 __name2(saveSubmission, "saveSubmission");
 __name22(saveSubmission, "saveSubmission");
 __name222(saveSubmission, "saveSubmission");
+__name2222(saveSubmission, "saveSubmission");
+__name22222(saveSubmission, "saveSubmission");
+__name222222(saveSubmission, "saveSubmission");
 async function recordSkills(env, concepts, missionId) {
   for (const c of concepts) {
     await env.DB.prepare(
@@ -1726,6 +2201,9 @@ __name(recordSkills, "recordSkills");
 __name2(recordSkills, "recordSkills");
 __name22(recordSkills, "recordSkills");
 __name222(recordSkills, "recordSkills");
+__name2222(recordSkills, "recordSkills");
+__name22222(recordSkills, "recordSkills");
+__name222222(recordSkills, "recordSkills");
 async function capabilitiesWithStatus(env) {
   const missions = await getAllMissions(env);
   const byKey = {};
@@ -1749,7 +2227,20 @@ __name(capabilitiesWithStatus, "capabilitiesWithStatus");
 __name2(capabilitiesWithStatus, "capabilitiesWithStatus");
 __name22(capabilitiesWithStatus, "capabilitiesWithStatus");
 __name222(capabilitiesWithStatus, "capabilitiesWithStatus");
+__name2222(capabilitiesWithStatus, "capabilitiesWithStatus");
+__name22222(capabilitiesWithStatus, "capabilitiesWithStatus");
+__name222222(capabilitiesWithStatus, "capabilitiesWithStatus");
+function assetHash(str) {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) {
+    h = (h * 33 ^ str.charCodeAt(i)) >>> 0;
+  }
+  return h.toString(36);
+}
+__name(assetHash, "assetHash");
+__name2(assetHash, "assetHash");
 var ASSET_FILES = { "styles.css": STYLES_CSS, "landing.css": LANDING_CSS, "lesson-components.css": LESSON_CSS };
+var ASSET_VERSIONS = { "styles.css": assetHash(STYLES_CSS), "landing.css": assetHash(LANDING_CSS), "lesson-components.css": assetHash(LESSON_CSS) };
 var PUBLIC_PATHS = /* @__PURE__ */ new Set(["/", "/login", "/logout"]);
 function html(body, status = 200) {
   return new Response(body, { status, headers: { "content-type": "text/html; charset=utf-8" } });
@@ -1758,6 +2249,9 @@ __name(html, "html");
 __name2(html, "html");
 __name22(html, "html");
 __name222(html, "html");
+__name2222(html, "html");
+__name22222(html, "html");
+__name222222(html, "html");
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json; charset=utf-8" } });
 }
@@ -1765,6 +2259,9 @@ __name(json, "json");
 __name2(json, "json");
 __name22(json, "json");
 __name222(json, "json");
+__name2222(json, "json");
+__name22222(json, "json");
+__name222222(json, "json");
 function redirect(location, extraHeaders = {}) {
   return new Response(null, { status: 302, headers: { location, ...extraHeaders } });
 }
@@ -1772,6 +2269,9 @@ __name(redirect, "redirect");
 __name2(redirect, "redirect");
 __name22(redirect, "redirect");
 __name222(redirect, "redirect");
+__name2222(redirect, "redirect");
+__name22222(redirect, "redirect");
+__name222222(redirect, "redirect");
 var index_default = {
   async fetch(request, env, ctx) {
     try {
@@ -1803,6 +2303,7 @@ var index_default = {
         if (!authed) return redirect("/login");
       }
       await ensureSeeded(env);
+      await ensureCanonicalNames(env);
       if (path === "/hq" && request.method === "GET") {
         const capabilities = await capabilitiesWithStatus(env);
         const current = await getCurrentMission(env);
@@ -1818,7 +2319,8 @@ var index_default = {
       if (lessonMatch && request.method === "GET") {
         const mission = await getMission(env, lessonMatch[1]);
         if (!mission) return html(shell({ title: "Not found", active: "/hq", body: `<div class="empty">No such mission. <a href="/hq">Back to Build HQ</a>.</div>` }), 404);
-        return html(lessonPage({ mission, missionAvailable: true, submitResult: null, notice: null }));
+        const canonicalNames = await getCanonicalNames(env);
+        return html(lessonPage({ mission, missionAvailable: true, submitResult: null, notice: null, canonicalNames }));
       }
       if (path === "/api/submit" && request.method === "POST") {
         return await handleSubmit(request, env);
@@ -1855,6 +2357,9 @@ __name(fileToImageBlock, "fileToImageBlock");
 __name2(fileToImageBlock, "fileToImageBlock");
 __name22(fileToImageBlock, "fileToImageBlock");
 __name222(fileToImageBlock, "fileToImageBlock");
+__name2222(fileToImageBlock, "fileToImageBlock");
+__name22222(fileToImageBlock, "fileToImageBlock");
+__name222222(fileToImageBlock, "fileToImageBlock");
 async function handleSubmit(request, env) {
   const missionId = request.headers.get("x-mission-id");
   const mission = missionId && await getMission(env, missionId);
@@ -1931,6 +2436,9 @@ __name(handleSubmit, "handleSubmit");
 __name2(handleSubmit, "handleSubmit");
 __name22(handleSubmit, "handleSubmit");
 __name222(handleSubmit, "handleSubmit");
+__name2222(handleSubmit, "handleSubmit");
+__name22222(handleSubmit, "handleSubmit");
+__name222222(handleSubmit, "handleSubmit");
 async function planNextMission(env) {
   const already = await getCurrentMission(env);
   if (already) return already;
@@ -1977,6 +2485,26 @@ The next mission should be numbered ${nextNumber}, with id "V1-M${String(nextNum
     console.error("QA pass failed:", qaErr);
     await logEvent(env, "qa_error", `QA pass on ${mission.id} failed to run (${String(qaErr.message || qaErr)}) -- mission was saved WITHOUT an automated QA check. Review it by hand before Nick reaches it.`);
   }
+  try {
+    const knownNames = (await getCanonicalNames(env)).map((n) => n.name);
+    const namesRaw = await callClaude(env, {
+      model: env.MODEL_FAST,
+      system: nameExtractionSystemPrompt(knownNames),
+      messages: [{ role: "user", content: JSON.stringify(mission) }],
+      maxTokens: 1e3
+    });
+    const namesResult = extractJson(namesRaw);
+    const newEntries = [
+      ...(Array.isArray(namesResult.objects) ? namesResult.objects : []).map((name) => ({ name, category: "object" })),
+      ...(Array.isArray(namesResult.values) ? namesResult.values : []).map((name) => ({ name, category: "value" }))
+    ];
+    if (newEntries.length) {
+      await addCanonicalNames(env, newEntries, mission.id);
+      await logEvent(env, "names_added", `${mission.id} introduced ${newEntries.length} new name(s) added automatically to inline highlighting: ${newEntries.map((e) => e.name).join(", ")}`);
+    }
+  } catch (nameErr) {
+    console.error("Name extraction failed:", nameErr);
+  }
   await saveDynamicMission(env, mission);
   if (qaIssues.length > 0) {
     await logEvent(env, "qa_fix", `QA pass on ${mission.id} found and fixed ${qaIssues.length} issue(s) before it was saved: ${qaIssues.join(" | ")}`);
@@ -1990,6 +2518,9 @@ __name(planNextMission, "planNextMission");
 __name2(planNextMission, "planNextMission");
 __name22(planNextMission, "planNextMission");
 __name222(planNextMission, "planNextMission");
+__name2222(planNextMission, "planNextMission");
+__name22222(planNextMission, "planNextMission");
+__name222222(planNextMission, "planNextMission");
 async function handleHelp(request, env) {
   const body = await request.json();
   const mission = await getMission(env, body.mission_id);
@@ -2009,6 +2540,9 @@ __name(handleHelp, "handleHelp");
 __name2(handleHelp, "handleHelp");
 __name22(handleHelp, "handleHelp");
 __name222(handleHelp, "handleHelp");
+__name2222(handleHelp, "handleHelp");
+__name22222(handleHelp, "handleHelp");
+__name222222(handleHelp, "handleHelp");
 async function handleChat(request, env) {
   const body = await request.json();
   const worldState = await getWorldState(env);
@@ -2026,6 +2560,9 @@ __name(handleChat, "handleChat");
 __name2(handleChat, "handleChat");
 __name22(handleChat, "handleChat");
 __name222(handleChat, "handleChat");
+__name2222(handleChat, "handleChat");
+__name22222(handleChat, "handleChat");
+__name222222(handleChat, "handleChat");
 export {
   index_default as default
 };
