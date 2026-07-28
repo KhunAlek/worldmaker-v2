@@ -33,15 +33,51 @@
   background: rgba(255, 255, 255, .035);
 }
 
+.fact-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 10px;
+}
+.fact-list li {
+  padding-left: 2px;
+}
+
 .checkpoint {
-  margin: 20px 0;
-  padding: 18px;
-  border: 1px solid rgba(151, 255, 130, .25);
-  border-radius: 16px;
-  background: rgba(151, 255, 130, .07);
+  margin: 18px 0 0;
+  padding: 16px 18px;
+  border: 1px solid rgba(151, 255, 130, .3);
+  border-radius: 15px;
+  background: rgba(151, 255, 130, .08);
+  font-size: 1rem;
+  line-height: 1.65;
 }
 .checkpoint strong {
   color: #b8ffac;
+}
+
+/* "If it's not right yet" box — matches the checkpoint box's exact recipe,
+   recolored to the same gold used elsewhere on the site for a recovery step. */
+.recovery {
+  margin: 12px 0 0;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 214, 107, .3);
+  border-radius: 15px;
+  background: rgba(255, 214, 107, .08);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+.recovery strong {
+  color: #ffe28b;
+}
+.triage.warn {
+  margin: 12px 0 0;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 214, 107, .3);
+  border-radius: 15px;
+  background: rgba(255, 214, 107, .08);
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 .prediction {
@@ -132,29 +168,72 @@
   margin-top: 16px;
 }
 
+/* Six-stage color system (spec section 3). Every step belongs to one stage;
+   the stage sets one custom property that colors the card's left edge, its
+   open-state tint, its stage-tag chip, and the matching nav entry — one
+   source of truth per stage, not colors re-picked per component. */
+.step-stage-understand, .stage-understand { --stage-color: #668dff; }
+.step-stage-do,         .stage-do         { --stage-color: #b47aff; }
+.step-stage-observe,    .stage-observe    { --stage-color: #ff72d7; }
+.step-stage-experiment, .stage-experiment { --stage-color: #ffe28b; }
+.step-stage-fix,        .stage-fix        { --stage-color: #ff7f91; }
+.step-stage-prove,      .stage-prove      { --stage-color: #a7ff92; }
+
 .step-card {
-  border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 16px;
+  scroll-margin-top: 112px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
   background: rgba(255, 255, 255, .03);
   overflow: hidden;
+  border-left: 5px solid var(--stage-color, var(--line));
 }
 .step-card summary {
   cursor: pointer;
-  padding: 18px;
-  font-weight: 900;
-  font-size: 1.05rem;
   list-style: none;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 900;
+  font-size: 1rem;
 }
 .step-card summary::-webkit-details-marker {
   display: none;
 }
+.step-card summary::after {
+  content: "";
+  margin-left: auto;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg);
+  transition: transform .18s ease;
+  flex-shrink: 0;
+}
+.step-card[open] summary::after { transform: rotate(45deg); }
 .step-card[open] summary {
   border-bottom: 1px solid rgba(255, 255, 255, .1);
-  background: rgba(86, 246, 255, .06);
+  background: color-mix(in srgb, var(--stage-color, #56f6ff) 10%, transparent);
 }
 .step-body {
-  padding: 18px;
+  padding: 18px 20px 20px;
 }
+.step-stage-tag {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: .66rem;
+  font-weight: 1000;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--stage-color, #56f6ff) 22%, transparent);
+  color: var(--stage-color, #56f6ff);
+  border: 1px solid color-mix(in srgb, var(--stage-color, #56f6ff) 55%, transparent);
+}
+.stage-legend { display:flex; flex-wrap:wrap; gap:10px; margin: 4px 0 22px; }
+.stage-chip { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.72rem; font-weight:900; text-transform:uppercase; letter-spacing:.05em; border:1px solid; }
+.stage-chip .dot { width:8px; height:8px; border-radius:50%; }
 
 .screen-check {
   display: grid;
@@ -225,6 +304,251 @@
   padding: 12px;
   background: rgba(255, 255, 255, .025);
 }
+
+/* Lightweight manual code-token coloring (spec section 6). Only applies where
+   lesson content already wraps code in these spans — this is not a live
+   syntax highlighter. */
+.tok-comment { color: #7d8ab0; font-style: italic; }
+.tok-keyword { color: var(--violet); font-weight: 700; }
+.tok-name { color: var(--cyan); }
+.tok-string { color: var(--gold); }
+
+/* Inline name highlighting in ordinary lesson prose (not inside code
+   blocks, which already use the .tok-* colors above). Applied
+   automatically by the Worker at render time against the canonical
+   names list -- see .in-text-object / .in-text-value below. */
+.in-text-object, .in-text-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: .9em;
+  white-space: nowrap;
+}
+.in-text-object {
+  color: var(--cyan);
+  background: rgba(86, 246, 255, .12);
+}
+.in-text-value {
+  color: var(--gold);
+  background: rgba(255, 214, 107, .12);
+}
+
+/* Code block header + "view full code" button (spec: no horizontal
+   scroll needed to read; button is an upgrade for copying and seeing
+   long lines unwrapped). */
+.code-block-unit { margin: 10px 0; }
+.code-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.code-block-head-plain { justify-content: flex-end; }
+.code-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: .78rem;
+  font-weight: 900;
+  cursor: pointer;
+  border: 1px solid rgba(86, 246, 255, .35);
+  background: rgba(86, 246, 255, .1);
+  color: var(--cyan);
+  flex-shrink: 0;
+}
+.code-expand-btn:hover { background: rgba(86, 246, 255, .18); }
+
+/* Full-code modal */
+.code-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(4, 5, 16, .72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.code-modal-backdrop[hidden] { display: none; }
+.code-modal {
+  width: min(880px, 100%);
+  max-height: min(80vh, 720px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: var(--panel-strong, #14173d);
+  box-shadow: 0 24px 70px rgba(0,0,0,.5);
+  overflow: hidden;
+}
+.code-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  flex-shrink: 0;
+}
+.code-modal-head strong { font-size: .92rem; }
+.code-modal-actions { display: flex; gap: 8px; }
+.code-modal-actions button {
+  padding: 7px 13px;
+  border-radius: 10px;
+  font-size: .8rem;
+  font-weight: 900;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+}
+.code-modal-copy.copied { border-color: rgba(151,255,130,.5); color: #b8ffac; background: rgba(151,255,130,.1); }
+.code-modal-close { border-color: rgba(255,127,145,.35) !important; color: #ffb0ba; }
+.code-modal-body {
+  overflow: auto;
+  padding: 16px 18px;
+}
+.code-modal-body pre {
+  margin: 0;
+  white-space: pre;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .85rem;
+  color: #dffcff;
+  line-height: 1.6;
+}
+.tok-punct { color: #8890b8; }
+
+/* ============================================================
+   Everything below this line is scoped to body.mission-page only.
+   This file loads on every page of the site, but these rules can
+   only ever match on the mission/lesson page — Build HQ and the
+   sign-in screen keep their current button look untouched, on
+   purpose, because those pages currently share the exact same
+   .button-primary / .button-secondary classes.
+   ============================================================ */
+
+/* Aurora-bands background (spec section 7), built fresh from
+   worldmaker-background-banner-options.html option B — this never
+   existed in the approved mockup file, only in that preview. */
+body.mission-page {
+  background:
+    linear-gradient(120deg, rgba(86,246,255,.16) 0%, transparent 30%),
+    linear-gradient(200deg, rgba(180,122,255,.18) 10%, transparent 45%),
+    linear-gradient(340deg, rgba(255,114,215,.12) 20%, transparent 55%),
+    var(--bg);
+}
+body.mission-page::before {
+  opacity: .10;
+  background-size: 58px 58px;
+}
+
+/* Redesigned buttons, mission pages only (spec section 5) */
+body.mission-page h1 {
+  margin: 6px 0 0;
+  font-size: clamp(2.1rem, 4.6vw, 3.2rem);
+  letter-spacing: -.045em;
+  line-height: 1.02;
+}
+body.mission-page .button-primary {
+  background: linear-gradient(100deg,var(--cyan),#9dc7ff 52%,#d9a9ff);
+  box-shadow: 0 10px 26px rgba(86,246,255,.28);
+  transition: transform .15s ease, filter .15s ease;
+}
+body.mission-page .button-secondary {
+  border: 1.5px solid rgba(255,255,255,.4);
+  background: rgba(255,255,255,.14);
+  transition: transform .15s ease, filter .15s ease;
+}
+body.mission-page .button-secondary:hover {
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.55);
+}
+body.mission-page .button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  transform: none;
+}
+body.mission-page .upload-btn {
+  color: var(--cyan);
+  border: 1.5px solid rgba(86,246,255,.45);
+  background: rgba(86,246,255,.12);
+  transition: transform .15s ease, filter .15s ease;
+}
+body.mission-page .upload-btn:hover {
+  background: rgba(86,246,255,.2);
+}
+
+/* "Help with this step" — contextual-help button, colored to its own
+   step's stage rather than a generic button treatment. */
+body.mission-page .button-help {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: 13px;
+  font-weight: 950;
+  font-size: .87rem;
+  cursor: pointer;
+  border: 0;
+  color: var(--stage-color, var(--cyan));
+  background: color-mix(in srgb, var(--stage-color, #56f6ff) 16%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--stage-color, #56f6ff) 55%, transparent);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--stage-color, #56f6ff) 18%, transparent);
+  transition: transform .15s ease, filter .15s ease;
+}
+body.mission-page .button-help:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+/* Keyboard focus outlines, mission pages (spec section 5 — cyan/2px here
+   instead of the site-wide white/3px, matching the mockup exactly) */
+body.mission-page .button:focus-visible,
+body.mission-page .step-card summary:focus-visible,
+body.mission-page .nav-item:focus-visible,
+body.mission-page textarea:focus-visible,
+body.mission-page input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* Persistent left "Mission contents" nav and its steps-opened progress bar
+   (spec section 4.1). CSS is ready now; the actual nav markup is added in
+   the template step, once you've confirmed it should read the mission's
+   real step count rather than assume 7. */
+.layout-3col { display: grid; grid-template-columns: 240px minmax(0,1fr) 320px; gap: 20px; align-items: start; margin-top: 22px; }
+.content-col { display:grid; gap: 18px; min-width: 0; }
+/* The shared --shadow value (24px offset, 70px blur) is correct for isolated
+   cards with generous space around them, but bleeds across the narrow 20-22px
+   gaps between the mission header / side nav / chat panel and their neighbors,
+   visually reading as overlap even though the boxes never actually touch.
+   Tighter shadow for just these three, so the seams read as clearly separate. */
+.mission-header, .mission-nav, .chat-panel {
+  box-shadow: 0 10px 24px rgba(0,0,0,.4);
+}
+.mission-nav { position: sticky; top: 92px; max-height: calc(100vh - 112px); overflow-y: auto; padding: 16px; border-radius: 20px; border: 1px solid var(--line); background: var(--panel); }
+.nav-kicker { color: var(--muted); font-size: .66rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 1000; margin-bottom: 8px; }
+.nav-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.nav-item { display:flex; align-items:center; gap:9px; padding: 6px 9px; border-radius: 9px; font-size: .84rem; font-weight: 800; color: #dfe3ff; text-decoration:none; cursor:pointer; }
+.nav-item .dot { width: 7px; height: 7px; border-radius: 50%; background: #7d84ac; flex-shrink:0; }
+.nav-item.active { background: rgba(86,246,255,.14); color: #eafeff; }
+.nav-item.active .dot { background: var(--cyan); }
+.nav-substeps { list-style:none; margin: 1px 0 2px; padding: 0 0 0 9px; display:grid; gap:0; }
+.nav-substep { display:flex; align-items:center; gap:8px; padding: 4px 9px; border-radius: 8px; font-size: .76rem; font-weight: 750; color: #c7ccec; line-height: 1.3; text-decoration: none; }
+.nav-substep .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink:0; }
+.nav-substep.current { background: color-mix(in srgb, var(--stage-color) 16%, transparent); color: #fff; }
+.nav-substep.current .dot { background: var(--stage-color); box-shadow: 0 0 8px var(--stage-color); }
+.nav-substep:not(.current) .dot { background: color-mix(in srgb, var(--stage-color) 55%, #7d84ac); }
+.nav-substep.opened:not(.current)::after { content: "\2713"; margin-left: auto; color: var(--lime); font-size: .75rem; }
+.nav-progress { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.1); }
+.progress-track { height: 8px; border-radius: 999px; background: rgba(255,255,255,.09); overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--cyan), var(--violet)); }
+.progress-label { display:flex; justify-content:space-between; align-items:baseline; margin-top: 9px; font-size: .78rem; color: var(--muted); }
+.progress-label b { color: var(--text); font-size: .95rem; }
 
 @media (max-width: 700px) {
   .lesson-goal,
