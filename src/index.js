@@ -1090,14 +1090,15 @@ ${notice ? `<p class="local-notice">${esc(notice)}</p>` : ""}
   .ask-panel textarea#chatInput { min-height: 78px; flex-shrink: 0; }
   .chat-log { flex: 1 1 auto; min-height: 60px; max-height: 40vh; overflow: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; padding: 6px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(0,0,0,.16); }
   .chat-log:empty { display: none; border: none; background: none; min-height: 0; margin-bottom: 0; padding: 0; }
-  .chat-msg { max-width: 88%; padding: 12px 14px; border-radius: 14px; line-height: 1.55; overflow-wrap: anywhere; word-break: break-word; font-size: .92rem; }
-  .chat-msg p { margin: 0 0 8px; }
-  .chat-msg p:last-child { margin-bottom: 0; }
-  .chat-msg ul, .chat-msg ol { margin: 6px 0; padding-left: 22px; }
-  .chat-msg h1, .chat-msg h2, .chat-msg h3 { margin: 4px 0 8px; font-size: 1.02rem; }
-  .chat-msg code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: rgba(255,255,255,.1); border-radius: 5px; padding: 1px 5px; font-size: .87em; overflow-wrap: anywhere; }
-  .chat-msg pre { margin: 8px 0; padding: 12px; border-radius: 10px; background: #090b1d; border: 1px solid rgba(255,255,255,.12); overflow-x: auto; }
-  .chat-msg pre code { background: none; padding: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .chat-msg, .hint-box { max-width: 88%; padding: 12px 14px; border-radius: 14px; line-height: 1.55; overflow-wrap: anywhere; word-break: break-word; font-size: .92rem; }
+  .chat-msg p, .hint-box p { margin: 0 0 8px; }
+  .chat-msg p:last-child, .hint-box p:last-child { margin-bottom: 0; }
+  .chat-msg ul, .chat-msg ol, .hint-box ul, .hint-box ol { margin: 6px 0; padding-left: 22px; }
+  .chat-msg h1, .chat-msg h2, .chat-msg h3, .hint-box h1, .hint-box h2, .hint-box h3 { margin: 4px 0 8px; font-size: 1.02rem; }
+  .chat-msg code, .hint-box code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: rgba(255,255,255,.1); border-radius: 5px; padding: 1px 5px; font-size: .87em; overflow-wrap: anywhere; }
+  .chat-msg pre, .hint-box pre { margin: 8px 0; padding: 12px; border-radius: 10px; background: #090b1d; border: 1px solid rgba(255,255,255,.12); overflow-x: auto; }
+  .chat-msg pre code, .hint-box pre code { background: none; padding: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .hint-box { max-width: none; }
   .chat-msg-user { align-self: flex-end; background: rgba(86,246,255,.14); border: 1px solid rgba(86,246,255,.3); border-bottom-right-radius: 4px; }
   .chat-msg-claude { align-self: flex-start; background: rgba(180,122,255,.12); border: 1px solid rgba(180,122,255,.28); border-bottom-left-radius: 4px; }
   .chat-msg-pending { align-self: flex-start; color: var(--muted); font-style: italic; background: transparent; border: none; padding: 4px 14px; }
@@ -1196,6 +1197,7 @@ ${notice ? `<p class="local-notice">${esc(notice)}</p>` : ""}
 </div>
 <script>
 const MISSION_ID = ${JSON.stringify(mission.id)};
+const CANONICAL_NAMES = ${JSON.stringify(canonicalNames || [])};
 
 (function () {
   const backdrop = document.getElementById("codeModalBackdrop");
@@ -1244,7 +1246,7 @@ document.querySelectorAll(".help-btn").forEach((btn) => {
       body: JSON.stringify({ mission_id: MISSION_ID, step_title: step })
     });
     const data = await res.json();
-    box.textContent = data.hint || data.error || "Couldn't get a hint right now.";
+    box.innerHTML = chatFormat(data.hint || data.error || "Couldn't get a hint right now.");
   });
 });
 
@@ -1334,6 +1336,22 @@ const chatLog = document.getElementById("chatLog");
 function chatEscape(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
+function highlightNamesClient(escapedText) {
+  if (!escapedText || !CANONICAL_NAMES || !CANONICAL_NAMES.length) return escapedText;
+  const catByName = new Map();
+  const names = [];
+  for (const n of CANONICAL_NAMES) {
+    const escName = chatEscape(n.name);
+    if (!catByName.has(escName)) { catByName.set(escName, n.category); names.push(escName); }
+  }
+  if (!names.length) return escapedText;
+  const pattern = names.map((n) => n.replace(/[.*+?^\${}()|[\]\\]/g, "\\$&")).join("|");
+  const re = new RegExp("(" + pattern + ")", "g");
+  return escapedText.replace(re, (m) => {
+    const cls = catByName.get(m) === "value" ? "in-text-value" : "in-text-object";
+    return '<span class="' + cls + '">' + m + "</span>";
+  });
+}
 function chatFormat(raw) {
   const text = String(raw || "");
   const codeBlocks = [];
@@ -1341,8 +1359,13 @@ function chatFormat(raw) {
     codeBlocks.push(chatEscape(code.replace(/\\n$/, "")));
     return "\\0CODEBLOCK" + (codeBlocks.length - 1) + "\\0";
   });
+  const inlineCodes = [];
+  working = working.replace(/\`([^\`\\n]+)\`/g, (_, code) => {
+    inlineCodes.push(chatEscape(code));
+    return "\\0INLINECODE" + (inlineCodes.length - 1) + "\\0";
+  });
   working = chatEscape(working);
-  working = working.replace(/\`([^\`\\n]+)\`/g, "<code>$1</code>");
+  working = highlightNamesClient(working);
   working = working.replace(/\\*\\*([^*\\n]+)\\*\\*/g, "<strong>$1</strong>");
   working = working.replace(/^### (.*)$/gm, "<h3>$1</h3>");
   working = working.replace(/^## (.*)$/gm, "<h3>$1</h3>");
@@ -1371,6 +1394,7 @@ function chatFormat(raw) {
   if (listOpen) html += "</ul>";
   flushPara();
   html = html.replace(/\\0CODEBLOCK(\\d+)\\0/g, (_, i) => "<pre><code>" + codeBlocks[Number(i)] + "</code></pre>");
+  html = html.replace(/\\0INLINECODE(\\d+)\\0/g, (_, i) => "<code>" + inlineCodes[Number(i)] + "</code>");
   return html || chatEscape(text);
 }
 function appendChatMessage(who, text) {
