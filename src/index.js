@@ -507,6 +507,24 @@ ${CANONICAL_FACTS}
 ${HELP_CHAT_PRECEDENT}`;
 }
 __name(chatSystemPrompt, "chatSystemPrompt");
+function chatSystemPromptGrounded(worldStateNarrative, missionContextNote, groundTruthNote) {
+  return `${chatSystemPrompt(worldStateNarrative)}
+
+Check whatever Nick describes or pastes against the real information below \u2014 do not
+reason about what "should" be true in the abstract, and do not invent a name or
+behavior that isn't actually shown here. This applies whether or not his message
+looks like a bug report; ground every answer in this, not in general Roblox
+knowledge alone.
+
+${missionContextNote}
+
+=== ${groundTruthNote} ===
+
+If recent messages are included above, they are the real, actual earlier turns of
+this same conversation \u2014 treat them as what was really said, not as a hypothetical
+or a suggestion.`;
+}
+__name(chatSystemPromptGrounded, "chatSystemPromptGrounded");
 __name2(chatSystemPrompt, "chatSystemPrompt");
 __name22(chatSystemPrompt, "chatSystemPrompt");
 __name222(chatSystemPrompt, "chatSystemPrompt");
@@ -1514,6 +1532,11 @@ function appendChatMessage(who, text) {
   chatLog.scrollTop = chatLog.scrollHeight;
   return div;
 }
+/* In-memory chat history, this page load only \u2014 never saved anywhere, same as
+   the nav-tracking below. Sent with each message so the reply can account for what
+   was already said; capped so a long chat doesn't keep growing the cost. */
+const chatHistory = [];
+const CHAT_HISTORY_MAX_MESSAGES = 8;
 document.getElementById("chatForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const input = document.getElementById("chatInput");
@@ -1530,11 +1553,15 @@ document.getElementById("chatForm").addEventListener("submit", async (e) => {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ message: text, mission_id: MISSION_ID })
+    body: JSON.stringify({ message: text, mission_id: MISSION_ID, history: chatHistory })
   });
   const data = await res.json();
   document.getElementById("pending").remove();
-  appendChatMessage("claude", data.reply || data.error || "Something went wrong.");
+  const replyText = data.reply || data.error || "Something went wrong.";
+  appendChatMessage("claude", replyText);
+  chatHistory.push({ role: "user", content: text });
+  chatHistory.push({ role: "assistant", content: replyText });
+  while (chatHistory.length > CHAT_HISTORY_MAX_MESSAGES) chatHistory.shift();
 });
 
 /* Left-nav "steps opened" tracking \u2014 visual only. Resets each page load;
@@ -2764,15 +2791,30 @@ __name22222(handleHelp, "handleHelp");
 __name222222(handleHelp, "handleHelp");
 async function handleChat(request, env) {
   const body = await request.json();
+  const message = typeof body.message === "string" ? body.message : "";
   const worldState = await getWorldState(env);
-  const category = await classifyHelpQuestion(env, body.message || "");
+  const category = await classifyHelpQuestion(env, message);
+  const mission = body.mission_id ? await getMission(env, body.mission_id) : null;
+  const missionContextNote = mission ? `=== The mission Nick has open right now (${mission.id} \u2014 "${mission.title}") \u2014 every step, required code, and the known mistakes list ===
+${JSON.stringify(mission)}
+
+=== Known Roblox engine quirks already written down (check these first) ===
+${KNOWN_ENGINE_BEHAVIORS}` : `No specific mission is open right now, or it couldn't be found \u2014 answer generally using what's known about Nick's project below, and don't invent mission-specific detail.`;
+  const codeResult = await getLatestSubmittedCode(env);
+  const groundTruthNote = codeResult.ok ? `Nick's actual last-approved code (from ${codeResult.sourceMissionId}) \u2014 this is the real ground truth for what already exists in his project right now; do not assume anything different exists:
+${codeResult.code}` : `No real approved code is on record yet for this project \u2014 do not invent or assume any exists. (${codeResult.reason})`;
+  const CHAT_HISTORY_MAX_MESSAGES = 8;
+  const CHAT_HISTORY_MAX_CHARS_EACH = 1500;
+  const rawHistory = Array.isArray(body.history) ? body.history : [];
+  const boundedHistory = rawHistory.filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string").slice(-CHAT_HISTORY_MAX_MESSAGES).map((m) => ({ role: m.role, content: m.content.slice(0, CHAT_HISTORY_MAX_CHARS_EACH) }));
+  const messages = [...boundedHistory, { role: "user", content: message }];
   const reply = await callClaude(env, {
     model: env.MODEL_STRONG,
-    system: chatSystemPrompt(worldState) + categoryInstruction(category),
-    messages: [{ role: "user", content: body.message || "" }],
+    system: chatSystemPromptGrounded(worldState, missionContextNote, groundTruthNote) + categoryInstruction(category),
+    messages,
     maxTokens: 800
   });
-  await logEvent(env, "chat", `Q on ${body.mission_id || "(no mission)"} [${category}]: ${String(body.message || "").slice(0, 140)}`);
+  await logEvent(env, "chat", `Q on ${body.mission_id || "(no mission)"} [${category}]: ${message.slice(0, 140)}`);
   return json({ reply });
 }
 __name(handleChat, "handleChat");
