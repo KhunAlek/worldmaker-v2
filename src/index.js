@@ -452,6 +452,37 @@ __name222(helpSystemPrompt, "helpSystemPrompt");
 __name2222(helpSystemPrompt, "helpSystemPrompt");
 __name22222(helpSystemPrompt, "helpSystemPrompt");
 __name222222(helpSystemPrompt, "helpSystemPrompt");
+function helpDiagnosisSystemPrompt(mission, stepTitle, groundTruthNote) {
+  return `You are answering a real question from Nick, age 11, on mission ${mission.id} \u2014 "${mission.title}"
+\u2014 currently on this exact step: "${stepTitle}".
+
+Per design doc \xA73 and \xA710: you explain, teach, and ask questions \u2014 you never write
+Nick's code for him or take ownership of the build.
+
+Check whatever Nick describes or pastes against the real information below \u2014 do not
+reason about what "should" be true in the abstract, and do not invent a name or
+behavior that isn't actually shown here.
+
+=== This mission's full content \u2014 every step, required code, and the known mistakes list ===
+${JSON.stringify(mission)}
+
+=== Known Roblox engine quirks already written down (check these first) ===
+${KNOWN_ENGINE_BEHAVIORS}
+
+=== ${groundTruthNote} ===
+
+Formatting: your reply is shown to Nick as plain text, not rendered Markdown. Write
+in ordinary sentences and paragraphs only. Do not use #, *, **, backticks, bullet
+dashes, or any other Markdown symbols \u2014 they will show up as literal punctuation on
+screen, not formatting.`;
+}
+__name(helpDiagnosisSystemPrompt, "helpDiagnosisSystemPrompt");
+__name2(helpDiagnosisSystemPrompt, "helpDiagnosisSystemPrompt");
+__name22(helpDiagnosisSystemPrompt, "helpDiagnosisSystemPrompt");
+__name222(helpDiagnosisSystemPrompt, "helpDiagnosisSystemPrompt");
+__name2222(helpDiagnosisSystemPrompt, "helpDiagnosisSystemPrompt");
+__name22222(helpDiagnosisSystemPrompt, "helpDiagnosisSystemPrompt");
+__name222222(helpDiagnosisSystemPrompt, "helpDiagnosisSystemPrompt");
 function chatSystemPrompt(worldStateNarrative) {
   return `You are the open-chat helper for Nick, age 11, in Nick // Worldmaker v2 \u2014 a
 Roblox Studio/Luau teaching project. Per design doc \xA73 and \xA710: you explain, teach,
@@ -1048,7 +1079,7 @@ function stepCard(step, index, canonicalNames) {
     ${codeBlocks}
     <div class="checkpoint"><strong>Checkpoint:</strong> ${hl(step.checkpoint)}</div>
     <div class="recovery"><strong>If it's not right yet:</strong> ${hl(step.recovery)}</div>
-    <button type="button" class="button-help help-btn" data-step="${esc(step.title)}">\u{1F4AC} Help with this step</button>
+    <button type="button" class="button-help help-btn" data-step="${esc(step.title)}" data-has-code="${(step.codeBlocks || []).length > 0 ? "true" : "false"}">\u{1F4AC} Help with this step</button>
     <div class="hint-box" data-hint-for="${esc(step.title)}" hidden></div>
   </div>
 </details>`;
@@ -1275,16 +1306,54 @@ const CANONICAL_NAMES = ${JSON.stringify(canonicalNames || [])};
 document.querySelectorAll(".help-btn").forEach((btn) => {
   btn.addEventListener("click", async () => {
     const step = btn.dataset.step;
+    const hasCode = btn.dataset.hasCode === "true";
     const box = document.querySelector('[data-hint-for="' + CSS.escape(step) + '"]');
+    if (box.dataset.loaded === "true") {
+      box.hidden = !box.hidden;
+      return;
+    }
     box.hidden = false;
-    box.textContent = "Thinking...";
+    box.innerHTML = '<div class="hint-nudge">Thinking...</div>';
     const res = await fetch("/api/help", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ mission_id: MISSION_ID, step_title: step })
     });
     const data = await res.json();
-    box.innerHTML = chatFormat(data.hint || data.error || "Couldn't get a hint right now.");
+    box.innerHTML =
+      '<div class="hint-nudge">' + chatFormat(data.hint || data.error || "Couldn't get a hint right now.") + "</div>" +
+      '<div class="hint-followup">' +
+        '<label class="hint-followup-label">What\'s happening? Describe what you see' + (hasCode ? " or paste your code or error below." : ".") + "</label>" +
+        '<textarea class="hint-question-input" rows="3" placeholder="What are you seeing?"></textarea>' +
+        (hasCode ? '<textarea class="hint-code-input" rows="4" placeholder="Paste your code here (optional)"></textarea>' : "") +
+        '<button type="button" class="button-help hint-ask-btn">Ask my question</button>' +
+        '<div class="hint-answer" hidden></div>' +
+      "</div>";
+    box.dataset.loaded = "true";
+    const askBtn = box.querySelector(".hint-ask-btn");
+    askBtn.addEventListener("click", async () => {
+      const questionInput = box.querySelector(".hint-question-input");
+      const codeInput = box.querySelector(".hint-code-input");
+      const question = questionInput.value.trim();
+      if (!question) return;
+      const answerBox = box.querySelector(".hint-answer");
+      answerBox.hidden = false;
+      answerBox.innerHTML = "Thinking...";
+      askBtn.disabled = true;
+      const res2 = await fetch("/api/help", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          mission_id: MISSION_ID,
+          step_title: step,
+          question,
+          pasted_code: codeInput ? codeInput.value.trim() : ""
+        })
+      });
+      const data2 = await res2.json();
+      answerBox.innerHTML = chatFormat(data2.hint || data2.error || "Couldn't get an answer right now.");
+      askBtn.disabled = false;
+    });
   });
 });
 
@@ -2644,14 +2713,46 @@ async function handleHelp(request, env) {
   const mission = await getMission(env, body.mission_id);
   if (!mission) return json({ error: "Unknown mission." }, 404);
   const step = (mission.steps || []).find((s) => s.title === body.step_title);
-  const hint = await callClaude(env, {
-    model: env.MODEL_FAST,
-    system: helpSystemPrompt(mission, body.step_title || "(unspecified step)"),
-    messages: [{ role: "user", content: step ? `The step's own instructions:
+  const question = typeof body.question === "string" ? body.question.trim() : "";
+
+  if (!question) {
+    const hint = await callClaude(env, {
+      model: env.MODEL_FAST,
+      system: helpSystemPrompt(mission, body.step_title || "(unspecified step)"),
+      messages: [{ role: "user", content: step ? `The step's own instructions:
 ${JSON.stringify(step)}` : "Give a general nudge for this mission." }],
-    maxTokens: 400
+      maxTokens: 400
+    });
+    await logEvent(env, "help", `Help requested on ${mission.id}, step: ${body.step_title}`);
+    return json({ hint });
+  }
+
+  const pastedCode = typeof body.pasted_code === "string" ? body.pasted_code.trim() : "";
+  const category = await classifyHelpQuestion(env, question);
+  const codeResult = await getLatestSubmittedCode(env);
+  const groundTruthNote = codeResult.ok
+    ? `Nick's actual last-approved code (from ${codeResult.sourceMissionId}) \u2014 this is the real ground truth for what already exists in his project right now; do not assume anything different exists:
+${codeResult.code}`
+    : `No real approved code is on record yet for this project \u2014 do not invent or assume any exists. (${codeResult.reason})`;
+
+  let userContent = `The step's own instructions:
+${step ? JSON.stringify(step) : "(step not found in this mission \u2014 answer generally for this mission)"}
+
+Nick's question about this step: ${question}`;
+  if (pastedCode) {
+    userContent += `
+
+What Nick pasted (his own current code, or an error he's seeing):
+${pastedCode}`;
+  }
+
+  const hint = await callClaude(env, {
+    model: env.MODEL_STRONG,
+    system: helpDiagnosisSystemPrompt(mission, body.step_title || "(unspecified step)", groundTruthNote) + categoryInstruction(category),
+    messages: [{ role: "user", content: userContent }],
+    maxTokens: 800
   });
-  await logEvent(env, "help", `Help requested on ${mission.id}, step: ${body.step_title}`);
+  await logEvent(env, "help_question", `Real question on ${mission.id}, step: ${body.step_title} [${category}]: ${question.slice(0, 140)}`);
   return json({ hint });
 }
 __name(handleHelp, "handleHelp");
