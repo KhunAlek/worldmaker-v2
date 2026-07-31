@@ -1060,8 +1060,8 @@ __name222(hqPage, "hqPage");
 __name2222(hqPage, "hqPage");
 __name22222(hqPage, "hqPage");
 __name222222(hqPage, "hqPage");
-function conceptCard(c) {
-  return `<div class="concept"><b>${esc(c.name)}.</b> ${esc(c.text)}</div>`;
+function conceptCard(c, canonicalNames) {
+  return `<div class="concept"><b>${esc(c.name)}.</b> ${hlWithInlineCode(c.text, canonicalNames)}</div>`;
 }
 __name(conceptCard, "conceptCard");
 __name2(conceptCard, "conceptCard");
@@ -1070,25 +1070,34 @@ __name222(conceptCard, "conceptCard");
 __name2222(conceptCard, "conceptCard");
 __name22222(conceptCard, "conceptCard");
 __name222222(conceptCard, "conceptCard");
-var STAGE_WORDS = ["Understand", "Do", "Observe", "Experiment", "Fix", "Prove"];
-var STAGE_TITLE_RE = new RegExp("^(" + STAGE_WORDS.join("|") + ")\\s*[:\\u2014-]?\\s*(.*)$");
-function stageClassFor(title) {
-  const t = String(title || "").trim();
-  const m = t.match(STAGE_TITLE_RE);
-  return m ? "step-stage-" + m[1].toLowerCase() : "";
+var STAGE_COLORS = {
+  understand: "#668dff",
+  do: "#b47aff",
+  observe: "#ff72d7",
+  experiment: "#ffe28b",
+  fix: "#ff7f91",
+  prove: "#a7ff92"
+};
+var STAGE_SEPARATOR_RE = /^([A-Za-z][A-Za-z0-9 /'-]{0,40}?):\s*(.+)$/;
+function hashHue(str) {
+  let h = 0;
+  const s = String(str || "").toLowerCase();
+  for (let i = 0; i < s.length; i++) {
+    h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  }
+  return h % 360;
 }
-__name(stageClassFor, "stageClassFor");
-__name2(stageClassFor, "stageClassFor");
-__name22(stageClassFor, "stageClassFor");
-__name222(stageClassFor, "stageClassFor");
-__name2222(stageClassFor, "stageClassFor");
-__name22222(stageClassFor, "stageClassFor");
-__name222222(stageClassFor, "stageClassFor");
+function stageColorFor(word) {
+  const key = String(word || "").trim().toLowerCase();
+  if (!key) return "#7d8ab0";
+  if (STAGE_COLORS[key]) return STAGE_COLORS[key];
+  return `hsl(${hashHue(key)}, 90%, 78%)`;
+}
 function stageWordAndRestFor(title) {
   const t = String(title || "").trim();
-  const m = t.match(STAGE_TITLE_RE);
+  const m = t.match(STAGE_SEPARATOR_RE);
   if (!m) return { word: "", rest: t };
-  return { word: m[1], rest: m[2] };
+  return { word: m[1].trim(), rest: m[2].trim() };
 }
 __name(stageWordAndRestFor, "stageWordAndRestFor");
 __name2(stageWordAndRestFor, "stageWordAndRestFor");
@@ -1113,10 +1122,10 @@ function stepCard(step, index, canonicalNames) {
       ${cb.explanation ? `<p class="field-help">${hl(cb.explanation)}</p>` : ""}
     </div>`
   ).join("");
-  const stageClass = stageClassFor(step.title);
   const { word: stageWord, rest: titleRest } = stageWordAndRestFor(step.title);
-  const tag = stageWord ? `<span class="step-stage-tag">${esc(stageWord)}</span> ` : "";
-  return `<details class="step-card${stageClass ? " " + stageClass : ""}" id="step-${index + 1}" ${index === 0 ? "open" : ""}>
+  const stageColor = stageColorFor(stageWord);
+  const tag = `<span class="step-stage-tag">${esc(stageWord || "Step")}</span> `;
+  return `<details class="step-card" style="--stage-color:${stageColor};" id="step-${index + 1}" ${index === 0 ? "open" : ""}>
   <summary>${tag}Step ${index + 1} \u2014 ${esc(titleRest || step.title)}</summary>
   <div class="step-body">
     <ol>${actions}</ol>
@@ -1135,12 +1144,12 @@ __name222(stepCard, "stepCard");
 __name2222(stepCard, "stepCard");
 __name22222(stepCard, "stepCard");
 __name222222(stepCard, "stepCard");
-function factListOrParagraph(text, cssClass) {
+function factListOrParagraph(text, cssClass, canonicalNames) {
   const raw = String(text || "").trim();
   if (!raw) return "";
   const sentences = raw.split(/(?<=[.!?])\s+(?=[A-Z0-9])/).map((s) => s.trim()).filter(Boolean);
-  if (sentences.length < 2) return `<p class="${cssClass || ""}">${esc(raw)}</p>`;
-  return `<ul class="fact-list">${sentences.map((s) => `<li>${esc(s)}</li>`).join("")}</ul>`;
+  if (sentences.length < 2) return `<p class="${cssClass || ""}">${hlWithInlineCode(raw, canonicalNames)}</p>`;
+  return `<ul class="fact-list">${sentences.map((s) => `<li>${hlWithInlineCode(s, canonicalNames)}</li>`).join("")}</ul>`;
 }
 __name(factListOrParagraph, "factListOrParagraph");
 __name2(factListOrParagraph, "factListOrParagraph");
@@ -1150,20 +1159,21 @@ function lessonPage({ mission, submitResult, missionAvailable, notice, canonical
   const steps = mission.steps.map((s, i) => stepCard(s, i, canonicalNames)).join("");
   const stepCount = mission.steps.length;
   const navSubsteps = stepMeta.map((s) => {
-    const stageClass = s.word ? "step-stage-" + s.word.toLowerCase() : "";
-    return `<li><a href="#${s.id}" class="nav-substep${s.index === 0 ? " opened current" : ""}${stageClass ? " " + stageClass : ""}" data-step-link="${s.id}" onclick="document.getElementById('${s.id}').open=true">${s.word ? `<span class="dot"></span> ${s.index + 1} \xB7 ${esc(s.word)}` : `<span class="dot"></span> Step ${s.index + 1}`}</a></li>`;
+    const stageColor = stageColorFor(s.word);
+    const label = s.word || "Step";
+    return `<li><a href="#${s.id}" class="nav-substep${s.index === 0 ? " opened current" : ""}" style="--stage-color:${stageColor};" data-step-link="${s.id}" onclick="document.getElementById('${s.id}').open=true"><span class="dot"></span> ${s.index + 1} \xB7 ${esc(label)}</a></li>`;
   }).join("");
   const tests = mission.tests.map((t) => `
     <div class="test-card">
-      <strong>${esc(t.id)} \u2014 ${esc(t.name)}</strong>
-      <dl><dt>Setup</dt><dd>${esc(t.setup)}</dd><dt>Action</dt><dd>${esc(t.action)}</dd><dt>Expected</dt><dd>${esc(t.expected)}</dd></dl>
+      <strong>${esc(t.id)} \u2014 ${hlWithInlineCode(t.name, canonicalNames)}</strong>
+      <dl><dt>Setup</dt><dd>${hlWithInlineCode(t.setup, canonicalNames)}</dd><dt>Action</dt><dd>${hlWithInlineCode(t.action, canonicalNames)}</dd><dt>Expected</dt><dd>${hlWithInlineCode(t.expected, canonicalNames)}</dd></dl>
     </div>`).join("");
   const evidenceItems = (mission.submission?.fields || []).map((f) => {
     if (f.type === "screenshot") {
       return `
     <div class="evidence-field">
       <h3>${esc(f.label)}</h3>
-      <p class="instructions">${esc(f.help)}</p>
+      <p class="instructions">${hlWithInlineCode(f.help, canonicalNames)}</p>
       <div class="shot-row">
         <div class="shot-preview" id="preview_${esc(f.key)}">Preview<br>appears here</div>
         <div>
@@ -1176,12 +1186,12 @@ function lessonPage({ mission, submitResult, missionAvailable, notice, canonical
     return `
     <div class="evidence-field">
       <h3>${esc(f.label)}</h3>
-      <p class="instructions">${esc(f.help)}</p>
+      <p class="instructions">${hlWithInlineCode(f.help, canonicalNames)}</p>
       <textarea id="f_${esc(f.key)}" name="${esc(f.key)}" class="evidence-input${f.key === "code" ? " code" : ""}" data-required-field data-field-type="text"></textarea>
     </div>`;
   }).join("");
   const selfChecks = (mission.tests || []).map((t) => `
-    <label><input type="checkbox" data-selfcheck /> <span><strong>${esc(t.id)}</strong> \u2014 ${esc(t.expected)}</span></label>`).join("");
+    <label><input type="checkbox" data-selfcheck /> <span><strong>${esc(t.id)}</strong> \u2014 ${hlWithInlineCode(t.expected, canonicalNames)}</span></label>`).join("");
   const alreadyApproved = mission.status === "approved";
   if (!missionAvailable) {
     return shell({ title: mission.title, active: "/hq", body: `<div class="empty">This mission isn't unlocked yet. <a href="/hq">Back to Build HQ</a>.</div>` });
@@ -1194,7 +1204,7 @@ function lessonPage({ mission, submitResult, missionAvailable, notice, canonical
 <div id="mission-brief" class="mission-header card" style="scroll-margin-top:112px;">
   <div class="mission-meta"><span class="badge badge-difficulty">\u25CF ${esc(mission.difficulty)}</span><span class="badge badge-id">\u25CF ${esc(mission.id)}</span></div>
   <h1>${esc(mission.title)}</h1>
-  <p class="lead">${esc(mission.objective)}</p>
+  <p class="lead">${hlWithInlineCode(mission.objective, canonicalNames)}</p>
 </div>
 ${notice ? `<p class="local-notice">${esc(notice)}</p>` : ""}
 <style>
@@ -1250,13 +1260,13 @@ ${notice ? `<p class="local-notice">${esc(notice)}</p>` : ""}
   </nav>
   <div class="content-col">
     <div class="content-card">
-      <h2>Why it matters</h2><p>${esc(mission.whyItMatters)}</p>
-      <h2 style="margin-top:18px;">Before you start</h2>${factListOrParagraph(mission.startingState)}
-      <h2 style="margin-top:18px;">When you're done</h2><div class="callout"><strong>${esc(mission.visibleResult)}</strong></div>
+      <h2>Why it matters</h2><p>${hlWithInlineCode(mission.whyItMatters, canonicalNames)}</p>
+      <h2 style="margin-top:18px;">Before you start</h2>${factListOrParagraph(mission.startingState, "", canonicalNames)}
+      <h2 style="margin-top:18px;">When you're done</h2><div class="callout"><strong>${hlWithInlineCode(mission.visibleResult, canonicalNames)}</strong></div>
     </div>
     <div id="new-ideas" class="content-card" style="scroll-margin-top:112px;">
       <h2>New ideas in this mission</h2>
-      <div class="concepts">${mission.concepts.map(conceptCard).join("")}</div>
+      <div class="concepts">${mission.concepts.map((c) => conceptCard(c, canonicalNames)).join("")}</div>
     </div>
     <div id="explorer-structure" class="content-card" style="scroll-margin-top:112px;">
       <h2>Target Explorer structure</h2>
