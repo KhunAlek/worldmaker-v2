@@ -1377,7 +1377,7 @@ document.querySelectorAll(".help-btn").forEach((btn) => {
     box.innerHTML =
       '<div class="hint-nudge">' + chatFormat(data.hint || data.error || "Couldn't get a hint right now.") + "</div>" +
       '<div class="hint-followup">' +
-        '<label class="hint-followup-label">What\'s happening? Describe what you see' + (hasCode ? " or paste your code or error below." : ".") + "</label>" +
+        '<label class="hint-followup-label">What\\'s happening? Describe what you see' + (hasCode ? " or paste your code or error below." : ".") + "</label>" +
         '<textarea class="hint-question-input" rows="3" placeholder="What are you seeing?"></textarea>' +
         (hasCode ? '<textarea class="hint-code-input" rows="4" placeholder="Paste your code here (optional)"></textarea>' : "") +
         '<button type="button" class="button-help hint-ask-btn">Ask my question</button>' +
@@ -1499,7 +1499,7 @@ function chatEscape(s) {
 }
 function addBreakOpportunitiesClient(html) {
   if (!html) return html;
-  return html.replace(/\.(?=\S)/g, ".<wbr>");
+  return html.replace(/\\.(?=\\S)/g, ".<wbr>");
 }
 function highlightNamesClient(escapedText) {
   if (!escapedText) return escapedText;
@@ -1511,7 +1511,7 @@ function highlightNamesClient(escapedText) {
     if (!catByName.has(escName)) { catByName.set(escName, n.category); names.push(escName); }
   }
   if (!names.length) return addBreakOpportunitiesClient(escapedText);
-  const pattern = names.map((n) => n.replace(/[.*+?^\${}()|[\]\\]/g, "\\$&")).join("|");
+  const pattern = names.map((n) => n.replace(/[.*+?^\${}()|[\\]\\\\]/g, "\\\\$&")).join("|");
   const re = new RegExp("(" + pattern + ")", "g");
   const highlighted = escapedText.replace(re, (m) => {
     const cls = catByName.get(m) === "value" ? "in-text-value" : "in-text-object";
