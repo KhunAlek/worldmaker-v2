@@ -332,6 +332,15 @@
   color: var(--gold);
   background: rgba(255, 214, 107, .12);
 }
+.in-text-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: .9em;
+  color: #eef2ff;
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .12);
+}
 
 /* Code block header + "view full code" button (spec: no horizontal
    scroll needed to read; button is an upgrade for copying and seeing
@@ -521,7 +530,7 @@ body.mission-page input[type="checkbox"]:focus-visible {
    the template step, once you've confirmed it should read the mission's
    real step count rather than assume 7. */
 .layout-3col { display: grid; grid-template-columns: 240px minmax(0,1fr) 320px; gap: 20px; align-items: start; margin-top: 22px; }
-.content-col { display:grid; gap: 18px; min-width: 0; }
+.content-col { display:grid; gap: 18px; min-width: 0; overflow-wrap: break-word; }
 /* The shared --shadow value (24px offset, 70px blur) is correct for isolated
    cards with generous space around them, but bleeds across the narrow 20-22px
    gaps between the mission header / side nav / chat panel and their neighbors,

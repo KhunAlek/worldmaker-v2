@@ -244,6 +244,15 @@ Hard rules, non-negotiable:
   can prove the result.
 - Only introduce concepts genuinely new to Nick. If the skills record shows a concept
   already fully taught, use at most a one-line reminder, not a full explanation.
+- Formatting rule: when step text (actions, checkpoint, recovery, or an
+  explanation) refers to a real code expression -- a function call with
+  parentheses, a method call like x:Connect(...), or any snippet with an
+  argument list -- wrap that exact expression in backticks, e.g.
+  \`walkTo(npc, target.Position)\`. Reserve plain unwrapped text for a single
+  object, script, or property name on its own (e.g. WoodNode, OnServerEvent)
+  with no parentheses attached. Never mix the two in one fragment -- a
+  fragment that includes parentheses or an argument list is code and needs
+  backticks in full, not just the name inside it.
 - The mission must be small enough to complete in one sitting and must produce a
   visible or meaningful result, not just invisible setup.
 - Match the tone, concreteness, and step granularity of the four existing missions
@@ -613,8 +622,13 @@ async function addCanonicalNames(env, entries, missionId) {
   }
   if (statements.length) await env.DB.batch(statements);
 }
+function addBreakOpportunities(html) {
+  if (!html) return html;
+  return html.replace(/\.(?=\S)/g, ".<wbr>");
+}
 function highlightNames(escapedText, names) {
-  if (!escapedText || !names || !names.length) return escapedText;
+  if (!escapedText) return escapedText;
+  if (!names || !names.length) return addBreakOpportunities(escapedText);
   const catByName = /* @__PURE__ */ new Map();
   const escapedNames = [];
   for (const n of names) {
@@ -624,14 +638,15 @@ function highlightNames(escapedText, names) {
       escapedNames.push(escName);
     }
   }
-  if (!escapedNames.length) return escapedText;
+  if (!escapedNames.length) return addBreakOpportunities(escapedText);
   const pattern = escapedNames.map(escRe).join("|");
   const re = new RegExp(`(${pattern})`, "g");
-  return escapedText.replace(re, (m) => {
+  const highlighted = escapedText.replace(re, (m) => {
     const cat = catByName.get(m) || "object";
     const cls = cat === "value" ? "in-text-value" : "in-text-object";
     return `<span class="${cls}">${m}</span>`;
   });
+  return addBreakOpportunities(highlighted);
 }
 __name(esc, "esc");
 __name2(esc, "esc");
@@ -1077,8 +1092,19 @@ function stageWordAndRestFor(title) {
 }
 __name(stageWordAndRestFor, "stageWordAndRestFor");
 __name2(stageWordAndRestFor, "stageWordAndRestFor");
+function hlWithInlineCode(t, canonicalNames) {
+  const raw = String(t || "");
+  const codes = [];
+  const withPlaceholders = raw.replace(/`([^`\n]+)`/g, (_, code) => {
+    codes.push(code);
+    return "\0CODE" + (codes.length - 1) + "\0";
+  });
+  let out = highlightNames(esc(withPlaceholders), canonicalNames);
+  out = out.replace(/\0CODE(\d+)\0/g, (_, i) => `<code class="in-text-code">${addBreakOpportunities(esc(codes[Number(i)]))}</code>`);
+  return out;
+}
 function stepCard(step, index, canonicalNames) {
-  const hl = (t) => highlightNames(esc(t), canonicalNames);
+  const hl = (t) => hlWithInlineCode(t, canonicalNames);
   const actions = step.actions.map((a) => `<li>${hl(a)}</li>`).join("");
   const codeBlocks = (step.codeBlocks || []).map(
     (cb) => `<div class="code-block-unit">
@@ -1461,21 +1487,27 @@ const chatLog = document.getElementById("chatLog");
 function chatEscape(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
+function addBreakOpportunitiesClient(html) {
+  if (!html) return html;
+  return html.replace(/\.(?=\S)/g, ".<wbr>");
+}
 function highlightNamesClient(escapedText) {
-  if (!escapedText || !CANONICAL_NAMES || !CANONICAL_NAMES.length) return escapedText;
+  if (!escapedText) return escapedText;
+  if (!CANONICAL_NAMES || !CANONICAL_NAMES.length) return addBreakOpportunitiesClient(escapedText);
   const catByName = new Map();
   const names = [];
   for (const n of CANONICAL_NAMES) {
     const escName = chatEscape(n.name);
     if (!catByName.has(escName)) { catByName.set(escName, n.category); names.push(escName); }
   }
-  if (!names.length) return escapedText;
+  if (!names.length) return addBreakOpportunitiesClient(escapedText);
   const pattern = names.map((n) => n.replace(/[.*+?^\${}()|[\]\\]/g, "\\$&")).join("|");
   const re = new RegExp("(" + pattern + ")", "g");
-  return escapedText.replace(re, (m) => {
+  const highlighted = escapedText.replace(re, (m) => {
     const cls = catByName.get(m) === "value" ? "in-text-value" : "in-text-object";
     return '<span class="' + cls + '">' + m + "</span>";
   });
+  return addBreakOpportunitiesClient(highlighted);
 }
 function chatFormat(raw) {
   const text = String(raw || "");
@@ -1519,7 +1551,7 @@ function chatFormat(raw) {
   if (listOpen) html += "</ul>";
   flushPara();
   html = html.replace(/\\0CODEBLOCK(\\d+)\\0/g, (_, i) => "<pre><code>" + codeBlocks[Number(i)] + "</code></pre>");
-  html = html.replace(/\\0INLINECODE(\\d+)\\0/g, (_, i) => "<code>" + inlineCodes[Number(i)] + "</code>");
+  html = html.replace(/\\0INLINECODE(\\d+)\\0/g, (_, i) => '<code class="in-text-code">' + addBreakOpportunitiesClient(inlineCodes[Number(i)]) + "</code>");
   return html || chatEscape(text);
 }
 function appendChatMessage(who, text) {
