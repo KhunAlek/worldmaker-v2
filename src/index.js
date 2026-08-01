@@ -1103,13 +1103,19 @@ __name(stageWordAndRestFor, "stageWordAndRestFor");
 __name2(stageWordAndRestFor, "stageWordAndRestFor");
 function hlWithInlineCode(t, canonicalNames) {
   const raw = String(t || "");
+  const fences = [];
+  const withFencePlaceholders = raw.replace(/```(?:[a-zA-Z]*\n)?([\s\S]*?)```/g, (_, inner) => {
+    fences.push(inner.replace(/^\n+/, "").replace(/\n+$/, ""));
+    return "\0FENCE" + (fences.length - 1) + "\0";
+  });
   const codes = [];
-  const withPlaceholders = raw.replace(/`([^`\n]+)`/g, (_, code) => {
+  const withPlaceholders = withFencePlaceholders.replace(/`([^`\n]+)`/g, (_, code) => {
     codes.push(code);
     return "\0CODE" + (codes.length - 1) + "\0";
   });
   let out = highlightNames(esc(withPlaceholders), canonicalNames);
   out = out.replace(/\0CODE(\d+)\0/g, (_, i) => `<code class="in-text-code">${addBreakOpportunities(esc(codes[Number(i)]))}</code>`);
+  out = out.replace(/\0FENCE(\d+)\0/g, (_, i) => `<div class="mini-code">${highlightNames(esc(fences[Number(i)]), canonicalNames)}</div>`);
   return out;
 }
 function stepCard(step, index, canonicalNames) {
